@@ -1,3 +1,4 @@
+
 "use client";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -103,7 +104,9 @@ function ClientDashboard() {
                             <Scissors className="h-5 w-5 text-muted-foreground"/>
                             <p>con Javier "La Navaja" Rodriguez</p>
                         </div>
-                        <Button variant="outline" className="w-full md:w-auto mt-2">Gestionar Cita</Button>
+                        <Button asChild variant="outline" className="w-full md:w-auto mt-2">
+                            <Link href="/dashboard/appointments">Gestionar Cita</Link>
+                        </Button>
                     </CardContent>
                 </Card>
             </div>
@@ -123,7 +126,9 @@ function ClientDashboard() {
                                <p className="text-sm text-muted-foreground">15 de mayo, 2024 con Javier</p>
                             </div>
                            </div>
-                           <Button variant="ghost" size="sm">Re-reservar</Button>
+                           <Button asChild variant="ghost" size="sm">
+                                <Link href="/dashboard/book">Re-reservar</Link>
+                           </Button>
                        </li>
                         <li className="flex justify-between items-center">
                            <div className="flex items-center gap-3">
@@ -133,7 +138,9 @@ function ClientDashboard() {
                                <p className="text-sm text-muted-foreground">20 de abril, 2024 con Sam</p>
                             </div>
                            </div>
-                           <Button variant="ghost" size="sm">Re-reservar</Button>
+                           <Button asChild variant="ghost" size="sm">
+                                <Link href="/dashboard/book">Re-reservar</Link>
+                           </Button>
                        </li>
                    </ul>
                    <Button variant="link" className="p-0 h-auto mt-4"><Link href="/dashboard/appointments">Ver todo el historial</Link></Button>

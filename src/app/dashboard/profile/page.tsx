@@ -1,5 +1,7 @@
+
 "use client";
 
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -8,14 +10,40 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import RecommendedServices from '@/components/recommended-services';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ProfilePage() {
     const { user } = useAuth();
-    const userInitials = user?.displayName?.split(' ').map(n => n[0]).join('') || 'U';
+    const { toast } = useToast();
+    
+    // Local state for form fields
+    const [displayName, setDisplayName] = useState('');
+    const [phone, setPhone] = useState('');
+    const [preferences, setPreferences] = useState('');
+
+    useEffect(() => {
+        if (user) {
+            setDisplayName(user.displayName);
+            setPhone(user.phone || '');
+            setPreferences(user.preferences?.join(', ') || '');
+        }
+    }, [user]);
 
     if (!user) {
         return <div>Cargando...</div>;
     }
+
+    const userInitials = user.displayName?.split(' ').map(n => n[0]).join('') || 'U';
+
+    const handleSaveChanges = () => {
+        // Here you would typically call an API to save the changes.
+        // For this mock, we'll just show a toast notification.
+        console.log("Saving changes:", { displayName, phone, preferences });
+        toast({
+            title: "Perfil Actualizado",
+            description: "Tus cambios han sido guardados exitosamente.",
+        });
+    };
 
     return (
         <div className="grid gap-6 lg:grid-cols-3">
@@ -28,22 +56,23 @@ export default function ProfilePage() {
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="displayName">Nombre Completo</Label>
-                            <Input id="displayName" defaultValue={user.displayName} />
+                            <Input id="displayName" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="documentNumber">Número de Documento</Label>
-                            <Input id="documentNumber" type="text" defaultValue={user.documentNumber} readOnly />
+                            <Input id="documentNumber" type="text" value={user.documentNumber} readOnly />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="phone">Teléfono</Label>
-                            <Input id="phone" type="tel" defaultValue={user.phone} />
+                            <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="preferences">Preferencias</Label>
                             <Textarea
                                 id="preferences"
                                 placeholder="ej., Estilos modernos, arreglos de barba, citas tranquilas..."
-                                defaultValue={user.preferences?.join(', ')}
+                                value={preferences}
+                                onChange={(e) => setPreferences(e.target.value)}
                             />
                             <p className="text-xs text-muted-foreground">
                                 Deja que tus barberos sepan lo que te gusta para tener la mejor experiencia.
@@ -51,7 +80,7 @@ export default function ProfilePage() {
                         </div>
                     </CardContent>
                     <CardFooter>
-                        <Button>Guardar Cambios</Button>
+                        <Button onClick={handleSaveChanges}>Guardar Cambios</Button>
                     </CardFooter>
                 </Card>
             </div>

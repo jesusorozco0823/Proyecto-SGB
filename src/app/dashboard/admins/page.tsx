@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { mockUsers } from "@/lib/mock-data";
@@ -10,12 +10,16 @@ import { MoreHorizontal, PlusCircle, ShieldCheck } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import AddAdminDialog from "@/components/add-admin-dialog";
+import EditAdminDialog from "@/components/edit-admin-dialog";
+import DeleteAdminDialog from "@/components/delete-admin-dialog";
 import type { User } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 
 export default function AdminsPage() {
     const [admins, setAdmins] = useState<User[]>(mockUsers.filter(user => user.role === 'admin'));
     const [isAddAdminDialogOpen, setIsAddAdminDialogOpen] = useState(false);
+    const [editingAdmin, setEditingAdmin] = useState<User | null>(null);
+    const [deletingAdmin, setDeletingAdmin] = useState<User | null>(null);
     const { toast } = useToast();
 
     const handleAddAdmin = (newAdminData: Omit<User, 'id' | 'role' | 'avatarUrl'>) => {
@@ -34,6 +38,28 @@ export default function AdminsPage() {
         });
 
         setIsAddAdminDialogOpen(false);
+    };
+
+    const handleUpdateAdmin = (updatedAdmin: User) => {
+        setAdmins(prevAdmins => 
+            prevAdmins.map(admin => admin.id === updatedAdmin.id ? updatedAdmin : admin)
+        );
+        toast({
+            title: "Administrador Actualizado",
+            description: `Los datos de ${updatedAdmin.displayName} han sido actualizados.`,
+        });
+        setEditingAdmin(null);
+    };
+
+    const handleDeleteAdmin = () => {
+        if (!deletingAdmin) return;
+        setAdmins(prevAdmins => prevAdmins.filter(admin => admin.id !== deletingAdmin.id));
+        toast({
+            title: "Administrador Eliminado",
+            description: `${deletingAdmin.displayName} ha sido eliminado.`,
+            variant: "destructive",
+        });
+        setDeletingAdmin(null);
     };
 
     return (
@@ -87,8 +113,8 @@ export default function AdminsPage() {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                    <DropdownMenuItem>Editar</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive">Eliminar</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => setEditingAdmin(admin)}>Editar</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive" onClick={() => setDeletingAdmin(admin)}>Eliminar</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
@@ -105,6 +131,25 @@ export default function AdminsPage() {
                 onOpenChange={setIsAddAdminDialogOpen}
                 onAddAdmin={handleAddAdmin}
             />
+
+            {editingAdmin && (
+                 <EditAdminDialog
+                    isOpen={!!editingAdmin}
+                    onOpenChange={setIsAddAdminDialogOpen}
+                    onUpdateAdmin={handleUpdateAdmin}
+                    admin={editingAdmin}
+                />
+            )}
+
+            {deletingAdmin && (
+                <DeleteAdminDialog
+                    isOpen={!!deletingAdmin}
+                    onOpenChange={setDeletingAdmin}
+                    onConfirmDelete={handleDeleteAdmin}
+                    itemName={deletingAdmin.displayName}
+                    itemType="administrador"
+                />
+            )}
         </>
     );
 }
