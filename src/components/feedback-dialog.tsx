@@ -33,7 +33,7 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
   const appointmentBarber = mockBarbers.find(b => b.id === appointment.barberId);
 
   useEffect(() => {
-    if (rating > 0) {
+    if (rating > 0 && isOpen) {
       const fetchSuggestions = async () => {
         setLoadingSuggestions(true);
         setSuggestions([]);
@@ -44,7 +44,7 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
             barberName: appointmentBarber?.name || 'el barbero',
           });
           setSuggestions(result.suggestions);
-        } catch (error) {
+        } catch (error)          {
           console.error("Failed to fetch feedback suggestions:", error);
         } finally {
           setLoadingSuggestions(false);
@@ -54,14 +54,18 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
     } else {
       setSuggestions([]);
     }
-  }, [rating, appointment.id, appointmentServices, appointmentBarber]);
+  }, [rating, isOpen, appointment.id, appointmentServices, appointmentBarber]);
   
-    useEffect(() => {
-    // Reset state when dialog is closed or appointment changes
+  useEffect(() => {
+    // Reset state only when dialog is closed
     if (!isOpen) {
-      setRating(0);
-      setComment('');
-      setSuggestions([]);
+      const timer = setTimeout(() => {
+        setRating(0);
+        setComment('');
+        setSuggestions([]);
+        setHoverRating(0);
+      }, 300); // Delay to allow fade-out animation
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 
