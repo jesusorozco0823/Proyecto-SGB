@@ -59,7 +59,7 @@ function ClientDashboard() {
                         <Button asChild variant="secondary" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90">
                            <Link href="/dashboard/book">
                                 <Scissors className="mr-2 h-4 w-4" />
-                                Buscar un Hueco
+                                Reservar Ahora
                             </Link>
                         </Button>
                     </CardContent>
