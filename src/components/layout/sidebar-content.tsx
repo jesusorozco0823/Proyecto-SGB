@@ -13,6 +13,7 @@ import {
   User,
   ShoppingBag,
   Package,
+  ShieldCheck,
 } from 'lucide-react';
 
 const adminNavItems = [
@@ -24,6 +25,11 @@ const adminNavItems = [
   { href: '/dashboard/feedback', label: 'Opiniones', icon: MessageSquare },
 ];
 
+const superAdminNavItems = [
+  { href: '/dashboard', label: 'Panel', icon: LayoutDashboard },
+  { href: '/dashboard/admins', label: 'Gestionar Admins', icon: ShieldCheck },
+]
+
 const clientNavItems = [
   { href: '/dashboard/book', label: 'Reservar Cita', icon: Scissors },
   { href: '/dashboard/appointments', label: 'Mis Citas', icon: Calendar },
@@ -34,7 +40,18 @@ const clientNavItems = [
 export default function SidebarContent() {
     const { role } = useAuth();
     const pathname = usePathname();
-    const navItems = role === 'admin' ? adminNavItems : clientNavItems;
+
+    const getNavItems = () => {
+        switch (role) {
+            case 'superadmin':
+                return superAdminNavItems;
+            case 'admin':
+                return adminNavItems;
+            default:
+                return clientNavItems;
+        }
+    }
+    const navItems = getNavItems();
 
     return (
         <div className="flex h-full max-h-screen flex-col gap-2">

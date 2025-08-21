@@ -32,7 +32,7 @@ export default function AuthPage() {
   const router = useRouter();
 
   // In a real app, this would be handled by a proper auth provider.
-  const handleLogin = (role: 'client' | 'admin' | 'barber') => {
+  const handleLogin = (role: 'client' | 'admin' | 'barber' | 'superadmin') => {
     localStorage.setItem('userRole', role);
     router.push('/dashboard');
   };
@@ -72,6 +72,7 @@ export default function AuthPage() {
                     <Button onClick={() => handleLogin('client')} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">Entrar como Cliente</Button>
                     <Button onClick={() => handleLogin('admin')} className="w-full bg-secondary hover:bg-secondary/80 text-secondary-foreground">Entrar como Admin</Button>
                 </div>
+                <Button onClick={() => handleLogin('superadmin')} className="w-full bg-destructive hover:bg-destructive/90 text-destructive-foreground">Entrar como Super Admin</Button>
                  <p className="text-xs text-muted-foreground text-center">O</p>
                 <Button variant="outline" className="w-full">
                   <GoogleIcon className="mr-2 h-4 w-4" />

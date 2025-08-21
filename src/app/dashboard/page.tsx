@@ -2,7 +2,7 @@
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, Warehouse, Scissors, DollarSign, Clock } from "lucide-react";
+import { Calendar, Users, Warehouse, Scissors, DollarSign, Clock, ShieldCheck } from "lucide-react";
 import Link from 'next/link';
 
 function AdminDashboard() {
@@ -38,6 +38,31 @@ function AdminDashboard() {
                     <Button asChild><Link href="/dashboard/appointments">Ver Todas las Citas</Link></Button>
                     <Button asChild variant="secondary"><Link href="/dashboard/inventory">Gestionar Inventario</Link></Button>
                     <Button asChild variant="secondary"><Link href="/dashboard/barbers">Actualizar Horarios</Link></Button>
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+
+function SuperAdminDashboard() {
+    return (
+        <div className="space-y-6">
+            <h1 className="text-3xl font-bold font-headline">Panel de Super Administrador</h1>
+             <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <ShieldCheck className="h-6 w-6 text-destructive" />
+                        <span>Gestión del Sistema</span>
+                    </CardTitle>
+                    <CardDescription>Añade o elimina administradores del sistema.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Button asChild>
+                       <Link href="/dashboard/admins">
+                            <Users className="mr-2 h-4 w-4" />
+                            Gestionar Administradores
+                        </Link>
+                    </Button>
                 </CardContent>
             </Card>
         </div>
@@ -121,6 +146,10 @@ function ClientDashboard() {
 export default function DashboardPage() {
   const { role } = useAuth();
   
+  if (role === 'superadmin') {
+    return <SuperAdminDashboard />;
+  }
+
   if (role === 'admin') {
     return <AdminDashboard />;
   }

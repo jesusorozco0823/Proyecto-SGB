@@ -16,8 +16,19 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import SidebarContent from "./sidebar-content";
 
 export default function Header() {
-  const { user, logout } = useAuth();
+  const { user, logout, role } = useAuth();
   const userInitials = user?.displayName?.split(' ').map(n => n[0]).join('') || 'U';
+
+  const getTitle = () => {
+      switch (role) {
+          case 'superadmin':
+              return 'Panel de Super Administrador';
+          case 'admin':
+              return 'Panel de Administrador';
+          default:
+              return 'Portal de Cliente';
+      }
+  }
 
   return (
     <header className="flex h-16 items-center justify-between border-b bg-card px-4 md:px-6 sticky top-0 z-30">
@@ -36,7 +47,7 @@ export default function Header() {
                 </Sheet>
             </div>
             <h1 className="text-lg font-semibold md:text-xl font-headline">
-                {user?.role === 'admin' ? 'Panel de Administrador' : 'Portal de Cliente'}
+                {getTitle()}
             </h1>
         </div>
       

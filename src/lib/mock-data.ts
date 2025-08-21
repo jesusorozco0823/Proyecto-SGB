@@ -26,6 +26,14 @@ export const mockUsers: User[] = [
     phone: '555-0103',
     avatarUrl: 'https://placehold.co/100x100.png',
   },
+   {
+    id: 'user-4',
+    displayName: 'Super Admin',
+    documentNumber: '00000000',
+    role: 'superadmin',
+    phone: '555-0104',
+    avatarUrl: 'https://placehold.co/100x100.png',
+  },
 ];
 
 export const mockBarbers: Barber[] = [
