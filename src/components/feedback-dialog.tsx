@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Star } from 'lucide-react';
+import { Star, Wand2 } from 'lucide-react';
 import type { Appointment } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { suggestFeedback } from '@/ai/flows/suggest-feedback';
+import { mockBarbers, mockServices } from '@/lib/mock-data';
+import { Skeleton } from './ui/skeleton';
 
 interface FeedbackDialogProps {
   isOpen: boolean;
@@ -21,10 +24,38 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState('');
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const { toast } = useToast();
 
+  const appointmentServices = mockServices.filter(s => appointment.serviceIds.includes(s.id));
+  const appointmentBarber = mockBarbers.find(b => b.id === appointment.barberId);
+
+  useEffect(() => {
+    if (rating > 0) {
+      const fetchSuggestions = async () => {
+        setLoadingSuggestions(true);
+        setSuggestions([]);
+        try {
+          const result = await suggestFeedback({
+            rating,
+            serviceName: appointmentServices.map(s => s.name).join(', '),
+            barberName: appointmentBarber?.name || 'el barbero',
+          });
+          setSuggestions(result.suggestions);
+        } catch (error) {
+          console.error("Failed to fetch feedback suggestions:", error);
+        } finally {
+          setLoadingSuggestions(false);
+        }
+      };
+      fetchSuggestions();
+    } else {
+      setSuggestions([]);
+    }
+  }, [rating, appointment.id]);
+
   const handleSubmit = () => {
-    // Aquí se manejaría la lógica para enviar el feedback
     toast({
         title: "¡Gracias por tu opinión!",
         description: "Tus comentarios nos ayudan a mejorar.",
@@ -43,7 +74,7 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label>Calificación</Label>
+            <Label>Calificación (obligatoria)</Label>
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
@@ -62,7 +93,7 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="comment">Comentario</Label>
+            <Label htmlFor="comment">Comentario (obligatorio)</Label>
             <Textarea
               id="comment"
               placeholder="Describe tu experiencia..."
@@ -71,6 +102,34 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
               rows={4}
             />
           </div>
+          {(loadingSuggestions || suggestions.length > 0) && (
+            <div className="space-y-2">
+                <Label className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Wand2 className="h-4 w-4" />
+                    Sugerencias de IA
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                    {loadingSuggestions ? (
+                        <>
+                            <Skeleton className="h-9 w-full" />
+                            <Skeleton className="h-9 w-11/12" />
+                        </>
+                    ) : (
+                        suggestions.map((suggestion, index) => (
+                            <Button
+                                key={index}
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setComment(suggestion)}
+                                className="h-auto text-wrap text-left"
+                            >
+                                {suggestion}
+                            </Button>
+                        ))
+                    )}
+                </div>
+            </div>
+          )}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
