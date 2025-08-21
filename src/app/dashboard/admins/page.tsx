@@ -30,7 +30,9 @@ export default function AdminsPage() {
             avatarUrl: 'https://placehold.co/100x100.png',
         };
         
-        setAdmins(prevAdmins => [...prevAdmins, newAdmin]);
+        mockUsers.push(newAdmin);
+        setAdmins(mockUsers.filter(user => user.role === 'admin'));
+
 
         toast({
             title: "Administrador Creado",
@@ -41,9 +43,11 @@ export default function AdminsPage() {
     };
 
     const handleUpdateAdmin = (updatedAdmin: User) => {
-        setAdmins(prevAdmins => 
-            prevAdmins.map(admin => admin.id === updatedAdmin.id ? updatedAdmin : admin)
-        );
+        const adminIndex = mockUsers.findIndex(user => user.id === updatedAdmin.id);
+        if (adminIndex !== -1) {
+            mockUsers[adminIndex] = updatedAdmin;
+        }
+        setAdmins(mockUsers.filter(user => user.role === 'admin'));
         toast({
             title: "Administrador Actualizado",
             description: `Los datos de ${updatedAdmin.displayName} han sido actualizados.`,
@@ -53,7 +57,11 @@ export default function AdminsPage() {
 
     const handleDeleteAdmin = () => {
         if (!deletingAdmin) return;
-        setAdmins(prevAdmins => prevAdmins.filter(admin => admin.id !== deletingAdmin.id));
+        const adminIndex = mockUsers.findIndex(user => user.id === deletingAdmin.id);
+        if (adminIndex !== -1) {
+            mockUsers.splice(adminIndex, 1);
+        }
+        setAdmins(mockUsers.filter(user => user.role === 'admin'));
         toast({
             title: "Administrador Eliminado",
             description: `${deletingAdmin.displayName} ha sido eliminado.`,
@@ -135,7 +143,7 @@ export default function AdminsPage() {
             {editingAdmin && (
                  <EditAdminDialog
                     isOpen={!!editingAdmin}
-                    onOpenChange={setIsAddAdminDialogOpen}
+                    onOpenChange={() => setEditingAdmin(null)}
                     onUpdateAdmin={handleUpdateAdmin}
                     admin={editingAdmin}
                 />
@@ -144,7 +152,7 @@ export default function AdminsPage() {
             {deletingAdmin && (
                 <DeleteAdminDialog
                     isOpen={!!deletingAdmin}
-                    onOpenChange={setDeletingAdmin}
+                    onOpenChange={() => setDeletingAdmin(null)}
                     onConfirmDelete={handleDeleteAdmin}
                     itemName={deletingAdmin.displayName}
                     itemType="administrador"

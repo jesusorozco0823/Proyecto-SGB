@@ -42,9 +42,13 @@ export default function EditAdminDialog({ isOpen, onOpenChange, onUpdateAdmin, a
         phone,
     });
   };
+  
+  const handleClose = () => {
+      onOpenChange(false);
+  }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Editar Administrador</DialogTitle>
@@ -68,7 +72,7 @@ export default function EditAdminDialog({ isOpen, onOpenChange, onUpdateAdmin, a
                 </div>
             </div>
             <DialogFooter>
-            <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>Cancelar</Button>
+            <Button variant="outline" type="button" onClick={handleClose}>Cancelar</Button>
             <Button type="submit">Guardar Cambios</Button>
             </DialogFooter>
         </form>
