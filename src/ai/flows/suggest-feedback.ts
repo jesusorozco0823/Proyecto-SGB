@@ -40,33 +40,12 @@ Detalles de la Cita:
 
 Basado en la calificación, genera 3 sugerencias de comentarios distintas.
 
-{{#if (eq rating 5)}}
-  // Calificación perfecta. Genera comentarios muy positivos y específicos.
-  Ejemplos:
-  - "¡El mejor corte que he tenido! {{{barberName}}} entendió exactamente lo que quería."
-  - "Una experiencia increíble. El servicio de {{{serviceName}}} fue impecable y el ambiente del lugar es genial."
-  - "{{{barberName}}} es un artista. Muy profesional y con gran atención al detalle."
-{{else if (eq rating 4)}}
-  // Calificación buena. Genera comentarios positivos con una pequeña área de mejora opcional.
-  Ejemplos:
-  - "Muy contento con mi {{{serviceName}}}. {{{barberName}}} hizo un gran trabajo. Volveré."
-  - "El resultado fue excelente. Quizás el tiempo de espera fue un poco largo, pero valió la pena."
-  - "Gran servicio y muy profesional. Me gustó mucho el resultado final."
-{{else if (eq rating 3)}}
-  // Calificación neutral. Genera comentarios que son equilibrados, mencionando algo bueno y algo a mejorar.
-  Ejemplos:
-  - "El corte estuvo bien, pero no fue exactamente lo que pedí. El barbero fue amable."
-  - "El servicio fue correcto, aunque esperaba un poco más de atención al detalle."
-  - "Una experiencia promedio. El resultado es aceptable, pero hay margen de mejora."
-{{else}}
-  // Calificación baja (1 o 2). Genera comentarios que son críticas constructivas y educadas.
-  Ejemplos:
-  - "No quedé satisfecho con el resultado. Me gustaría que se prestara más atención a las instrucciones del cliente."
-  - "La experiencia no fue la esperada. Hubo problemas con [mencionar un aspecto específico como la puntualidad o el resultado]."
-  - "Lamentablemente, el servicio no cumplió mis expectativas. Espero que este comentario ayude a mejorar."
-{{/if}}
+- Si la calificación es 5/5, genera comentarios muy positivos y específicos sobre el excelente trabajo de {{{barberName}}} y la calidad del servicio {{{serviceName}}}.
+- Si la calificación es 4/5, genera comentarios positivos, mencionando que el servicio fue muy bueno pero quizás con una pequeña sugerencia opcional.
+- Si la calificación es 3/5, genera comentarios neutrales, mencionando un aspecto positivo y uno que podría mejorar, de forma equilibrada.
+- Si la calificación es 1/5 o 2/5, genera comentarios que sean críticas constructivas, educadas y específicas sobre lo que no cumplió las expectativas, para ayudar al negocio a mejorar.
 
-Genera tres opciones únicas y útiles para el cliente.
+Genera tres opciones únicas y útiles para el cliente. No incluyas viñetas ni numeración en tu respuesta.
 `,
 });
 
