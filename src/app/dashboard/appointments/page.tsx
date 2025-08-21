@@ -52,7 +52,9 @@ export default function AppointmentsPage() {
 
         setAppointments(prev =>
             prev.map(appt =>
-                appt.id === cancellingAppointment.id ? { ...appt, status: 'cancelled' } : appt
+                appt.id === cancellingAppointment.id 
+                    ? { ...appt, status: 'cancelled', cancellationReason: reason } 
+                    : appt
             )
         );
         

@@ -8,6 +8,7 @@ import { mockBarbers, mockServices } from '@/lib/mock-data';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Badge } from './ui/badge';
+import { Separator } from './ui/separator';
 
 interface AppointmentDetailsDialogProps {
   isOpen: boolean;
@@ -64,6 +65,15 @@ export default function AppointmentDetailsDialog({ isOpen, onOpenChange, appoint
                 {getStatusText(appointment.status)}
             </Badge>
           </div>
+           {appointment.status === 'cancelled' && appointment.cancellationReason && (
+            <>
+                <Separator />
+                <div>
+                    <h4 className="font-semibold">Motivo de Cancelación</h4>
+                    <p className="text-muted-foreground italic">"{appointment.cancellationReason}"</p>
+                </div>
+            </>
+          )}
         </div>
         <DialogFooter>
           <Button onClick={() => onOpenChange(false)}>Cerrar</Button>

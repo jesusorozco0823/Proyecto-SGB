@@ -34,6 +34,7 @@ export interface Appointment {
   serviceIds: string[];
   datetime: Date;
   status: 'scheduled' | 'completed' | 'cancelled';
+  cancellationReason?: string;
 }
 
 export interface InventoryItem {
