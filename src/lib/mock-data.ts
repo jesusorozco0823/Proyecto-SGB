@@ -88,6 +88,16 @@ export const mockAppointments: Appointment[] = [
     serviceIds: ['service-2'],
     datetime: new Date(new Date().setDate(new Date().getDate() - 14)),
     status: 'completed',
+    rating: 5,
+    comment: "¡Sam fue fantástico! El mejor degradado que he tenido."
+  },
+  {
+    id: 'appt-3',
+    userId: 'user-1',
+    barberId: 'barber-1',
+    serviceIds: ['service-4'],
+    datetime: new Date(new Date().setDate(new Date().getDate() - 30)),
+    status: 'completed',
   },
 ];
 

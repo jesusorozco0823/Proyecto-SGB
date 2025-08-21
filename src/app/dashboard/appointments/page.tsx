@@ -39,10 +39,19 @@ export default function AppointmentsPage() {
         return { client, barber, services };
     };
 
-    const handleFeedbackSubmit = () => {
-        console.log("Feedback submitted!");
-        // En una app real, aquí se enviaría el feedback a la base de datos.
-        setFeedbackAppointment(null); // Cierra el diálogo
+    const handleFeedbackSubmit = (rating: number, comment: string) => {
+        if (!feedbackAppointment) return;
+
+        setAppointments(prev =>
+            prev.map(appt =>
+                appt.id === feedbackAppointment.id
+                    ? { ...appt, rating, comment }
+                    : appt
+            )
+        );
+
+        console.log(`Feedback submitted for appointment ${feedbackAppointment.id}: ${rating} stars, "${comment}"`);
+        setFeedbackAppointment(null);
     }
 
     const handleCancelSubmit = (reason: string) => {
@@ -113,7 +122,7 @@ export default function AppointmentsPage() {
                                                     <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                                                     <DropdownMenuItem onSelect={() => setViewingAppointment(appt)}>Ver Detalles</DropdownMenuItem>
                                                     {appt.status === 'scheduled' && <DropdownMenuItem onSelect={() => setCancellingAppointment(appt)}>Cancelar</DropdownMenuItem>}
-                                                    {appt.status === 'completed' && <DropdownMenuItem onSelect={() => setFeedbackAppointment(appt)}>Dejar Opinión</DropdownMenuItem>}
+                                                    {appt.status === 'completed' && !appt.rating && <DropdownMenuItem onSelect={() => setFeedbackAppointment(appt)}>Dejar Opinión</DropdownMenuItem>}
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>

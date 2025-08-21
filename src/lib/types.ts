@@ -35,6 +35,8 @@ export interface Appointment {
   datetime: Date;
   status: 'scheduled' | 'completed' | 'cancelled';
   cancellationReason?: string;
+  rating?: number;
+  comment?: string;
 }
 
 export interface InventoryItem {

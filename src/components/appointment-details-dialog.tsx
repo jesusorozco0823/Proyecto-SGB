@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
+import { Star } from 'lucide-react';
 
 interface AppointmentDetailsDialogProps {
   isOpen: boolean;
@@ -72,6 +73,23 @@ export default function AppointmentDetailsDialog({ isOpen, onOpenChange, appoint
                     <h4 className="font-semibold">Motivo de Cancelación</h4>
                     <p className="text-muted-foreground italic">"{appointment.cancellationReason}"</p>
                 </div>
+            </>
+          )}
+          {appointment.status === 'completed' && appointment.rating && (
+            <>
+              <Separator />
+              <div>
+                <h4 className="font-semibold mb-2">Tu Opinión</h4>
+                <div className="flex items-center gap-1 mb-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                            key={i}
+                            className={`w-5 h-5 ${i < appointment.rating! ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`}
+                        />
+                    ))}
+                </div>
+                <p className="text-muted-foreground italic">"{appointment.comment}"</p>
+              </div>
             </>
           )}
         </div>

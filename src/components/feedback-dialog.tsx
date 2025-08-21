@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -17,7 +18,7 @@ interface FeedbackDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   appointment: Appointment;
-  onSubmit: () => void;
+  onSubmit: (rating: number, comment: string) => void;
 }
 
 export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSubmit }: FeedbackDialogProps) {
@@ -53,14 +54,23 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
     } else {
       setSuggestions([]);
     }
-  }, [rating, appointment.id]);
+  }, [rating, appointment.id, appointmentServices, appointmentBarber]);
+  
+    useEffect(() => {
+    // Reset state when dialog is closed or appointment changes
+    if (!isOpen) {
+      setRating(0);
+      setComment('');
+      setSuggestions([]);
+    }
+  }, [isOpen]);
 
   const handleSubmit = () => {
     toast({
         title: "¡Gracias por tu opinión!",
         description: "Tus comentarios nos ayudan a mejorar.",
     })
-    onSubmit();
+    onSubmit(rating, comment);
   };
 
   return (
