@@ -1,5 +1,6 @@
+
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { mockAppointments, mockBarbers, mockServices, mockUsers } from '@/lib/mock-data';
 import type { Appointment } from '@/lib/types';
@@ -13,17 +14,25 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Button } from '@/components/ui/button';
 import FeedbackDialog from '@/components/feedback-dialog';
 import AppointmentDetailsDialog from '@/components/appointment-details-dialog';
+import CancelAppointmentDialog from '@/components/cancel-appointment-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AppointmentsPage() {
     const { user, role } = useAuth();
+    const { toast } = useToast();
+    const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [feedbackAppointment, setFeedbackAppointment] = useState<Appointment | null>(null);
     const [viewingAppointment, setViewingAppointment] = useState<Appointment | null>(null);
+    const [cancellingAppointment, setCancellingAppointment] = useState<Appointment | null>(null);
 
-    const appointments = role === 'admin'
-        ? mockAppointments
-        : mockAppointments.filter(a => a.userId === user?.id);
+    useEffect(() => {
+        const userAppointments = role === 'admin'
+            ? mockAppointments
+            : mockAppointments.filter(a => a.userId === user?.id);
+        setAppointments(userAppointments);
+    }, [role, user?.id]);
 
-    const getAppointmentDetails = (appt: typeof mockAppointments[0]) => {
+    const getAppointmentDetails = (appt: Appointment) => {
         const client = mockUsers.find(u => u.id === appt.userId);
         const barber = mockBarbers.find(b => b.id === appt.barberId);
         const services = mockServices.filter(s => appt.serviceIds.includes(s.id));
@@ -35,6 +44,25 @@ export default function AppointmentsPage() {
         // En una app real, aquí se enviaría el feedback a la base de datos.
         setFeedbackAppointment(null); // Cierra el diálogo
     }
+
+    const handleCancelSubmit = (reason: string) => {
+        if (!cancellingAppointment) return;
+
+        console.log(`Cita ${cancellingAppointment.id} cancelada por: ${reason}`);
+
+        setAppointments(prev =>
+            prev.map(appt =>
+                appt.id === cancellingAppointment.id ? { ...appt, status: 'cancelled' } : appt
+            )
+        );
+        
+        toast({
+            title: "Cita Cancelada",
+            description: "Tu cita ha sido cancelada exitosamente.",
+        });
+
+        setCancellingAppointment(null);
+    };
 
     return (
         <>
@@ -82,7 +110,7 @@ export default function AppointmentsPage() {
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                                                     <DropdownMenuItem onSelect={() => setViewingAppointment(appt)}>Ver Detalles</DropdownMenuItem>
-                                                    {appt.status === 'scheduled' && <DropdownMenuItem>Cancelar</DropdownMenuItem>}
+                                                    {appt.status === 'scheduled' && <DropdownMenuItem onSelect={() => setCancellingAppointment(appt)}>Cancelar</DropdownMenuItem>}
                                                     {appt.status === 'completed' && <DropdownMenuItem onSelect={() => setFeedbackAppointment(appt)}>Dejar Opinión</DropdownMenuItem>}
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
@@ -112,6 +140,13 @@ export default function AppointmentsPage() {
                     isOpen={!!viewingAppointment}
                     onOpenChange={() => setViewingAppointment(null)}
                     appointment={viewingAppointment}
+                />
+            )}
+            {cancellingAppointment && (
+                <CancelAppointmentDialog
+                    isOpen={!!cancellingAppointment}
+                    onOpenChange={() => setCancellingAppointment(null)}
+                    onSubmit={handleCancelSubmit}
                 />
             )}
         </>
