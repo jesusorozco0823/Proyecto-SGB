@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -7,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter } from 'next/navigation';
+import { mockUsers } from '@/lib/mock-data';
+import type { User } from '@/lib/types';
 
 function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -30,11 +33,49 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
 
 export default function AuthPage() {
   const router = useRouter();
+  
+  // Login states
+  const [documentLogin, setDocumentLogin] = useState('00000000');
+  const [passwordLogin, setPasswordLogin] = useState('password');
 
-  // In a real app, this would be handled by a proper auth provider.
-  const handleLogin = (role: 'client' | 'admin' | 'barber' | 'superadmin') => {
-    localStorage.setItem('userRole', role);
-    router.push('/dashboard');
+  // Signup states
+  const [nameSignup, setNameSignup] = useState('');
+  const [documentSignup, setDocumentSignup] = useState('');
+  const [phoneSignup, setPhoneSignup] = useState('');
+  const [passwordSignup, setPasswordSignup] = useState('');
+
+  const handleAuth = (documentNumber: string) => {
+    const user = mockUsers.find(u => u.documentNumber === documentNumber);
+    if (user) {
+      localStorage.setItem('userDocument', documentNumber);
+      router.push('/dashboard');
+    } else {
+      alert("Usuario no encontrado.");
+    }
+  };
+
+  const handleUnifiedLogin = () => {
+     handleAuth(documentLogin);
+  };
+
+  const handleRegistration = () => {
+    if (!nameSignup || !documentSignup || !phoneSignup || !passwordSignup) {
+      alert("Por favor, completa todos los campos.");
+      return;
+    }
+
+    const newUser: User = {
+      id: `user-${Date.now()}`,
+      displayName: nameSignup,
+      documentNumber: documentSignup,
+      phone: phoneSignup,
+      role: 'client',
+      avatarUrl: 'https://placehold.co/100x100.png',
+    };
+
+    mockUsers.push(newUser);
+    
+    handleAuth(documentSignup);
   };
   
   return (
@@ -54,25 +95,32 @@ export default function AuthPage() {
               <CardHeader>
                 <CardTitle>Bienvenido de Nuevo</CardTitle>
                 <CardDescription>
-                  Elige tu rol para acceder a tu panel.
+                  Ingresa tu documento para acceder a tu panel.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="document-login">Número de Documento</Label>
-                  <Input id="document-login" type="text" placeholder="12345678" defaultValue="11111111" />
+                  <Input 
+                    id="document-login" 
+                    type="text" 
+                    placeholder="12345678" 
+                    value={documentLogin}
+                    onChange={(e) => setDocumentLogin(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password-login">Contraseña</Label>
-                  <Input id="password-login" type="password" defaultValue="password" />
+                  <Input 
+                    id="password-login" 
+                    type="password" 
+                    value={passwordLogin}
+                    onChange={(e) => setPasswordLogin(e.target.value)}
+                  />
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                    <Button onClick={() => handleLogin('client')} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">Entrar como Cliente</Button>
-                    <Button onClick={() => handleLogin('admin')} className="w-full bg-secondary hover:bg-secondary/80 text-secondary-foreground">Entrar como Admin</Button>
-                </div>
-                <Button onClick={() => handleLogin('superadmin')} className="w-full bg-destructive hover:bg-destructive/90 text-destructive-foreground">Entrar como Super Admin</Button>
+                 <Button onClick={handleUnifiedLogin} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">Ingresar</Button>
                  <p className="text-xs text-muted-foreground text-center">O</p>
                 <Button variant="outline" className="w-full">
                   <GoogleIcon className="mr-2 h-4 w-4" />
@@ -92,23 +140,45 @@ export default function AuthPage() {
               <CardContent className="space-y-4">
                  <div className="space-y-2">
                   <Label htmlFor="name-signup">Nombre Completo</Label>
-                  <Input id="name-signup" placeholder="John Doe" />
+                  <Input 
+                    id="name-signup" 
+                    placeholder="John Doe" 
+                    value={nameSignup}
+                    onChange={(e) => setNameSignup(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="document-signup">Número de Documento</Label>
-                  <Input id="document-signup" type="text" placeholder="12345678" />
+                  <Input 
+                    id="document-signup" 
+                    type="text" 
+                    placeholder="12345678" 
+                    value={documentSignup}
+                    onChange={(e) => setDocumentSignup(e.target.value)}
+                  />
                 </div>
                  <div className="space-y-2">
                   <Label htmlFor="phone-signup">Número de Celular</Label>
-                  <Input id="phone-signup" type="tel" placeholder="3001234567" />
+                  <Input 
+                    id="phone-signup" 
+                    type="tel" 
+                    placeholder="3001234567" 
+                    value={phoneSignup}
+                    onChange={(e) => setPhoneSignup(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password-signup">Contraseña</Label>
-                  <Input id="password-signup" type="password" />
+                  <Input 
+                    id="password-signup" 
+                    type="password"
+                    value={passwordSignup}
+                    onChange={(e) => setPasswordSignup(e.target.value)}
+                  />
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
-                <Button onClick={() => handleLogin('client')} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">Crear Cuenta</Button>
+                <Button onClick={handleRegistration} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">Crear Cuenta</Button>
                  <p className="text-xs text-muted-foreground text-center">O</p>
                 <Button variant="outline" className="w-full">
                   <GoogleIcon className="mr-2 h-4 w-4" />

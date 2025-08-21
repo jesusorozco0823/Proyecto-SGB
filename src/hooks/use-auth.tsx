@@ -1,3 +1,4 @@
+
 // In a real application, this would be a full-fledged authentication context
 // connected to Firebase Auth. For this prototype, we'll use a simplified
 // version that reads the role from localStorage.
@@ -26,12 +27,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
 
   useEffect(() => {
-    const storedRole = localStorage.getItem('userRole') as UserRole | null;
+    const userDocument = localStorage.getItem('userDocument');
     
-    if (storedRole) {
-      const currentUser = mockUsers.find(u => u.role === storedRole) || null;
+    if (userDocument) {
+      const currentUser = mockUsers.find(u => u.documentNumber === userDocument) || null;
       setUser(currentUser);
-      setRole(storedRole);
+      setRole(currentUser?.role || null);
     } else if (pathname !== '/') {
         // If no role and not on login page, redirect
         router.push('/');
@@ -40,7 +41,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [pathname, router]);
 
   const logout = () => {
-    localStorage.removeItem('userRole');
+    localStorage.removeItem('userDocument');
     setUser(null);
     setRole(null);
     router.push('/');
