@@ -20,7 +20,7 @@ export const mockUsers: User[] = [
   },
   {
     id: 'user-3',
-    displayName: 'Casey Lee',
+    displayName: 'Javier Rodriguez',
     documentNumber: '33333333',
     role: 'barber',
     phone: '555-0103',
@@ -39,8 +39,9 @@ export const mockUsers: User[] = [
 export const mockBarbers: Barber[] = [
   {
     id: 'barber-1',
+    userId: 'user-3',
     name: 'Javier "La Navaja" Rodriguez',
-    documentNumber: '44444444',
+    documentNumber: '33333333',
     phone: '555-0201',
     skills: ['Cortes Clásicos', 'Degradados (Fades)', 'Afeitados con Toalla Caliente'],
     schedule: {
@@ -57,6 +58,7 @@ export const mockBarbers: Barber[] = [
   },
   {
     id: 'barber-2',
+    userId: 'user-5', // Assuming a user-5 exists for this barber
     name: 'Sam "El Estilista" Chen',
     documentNumber: '55555555',
     phone: '555-0202',

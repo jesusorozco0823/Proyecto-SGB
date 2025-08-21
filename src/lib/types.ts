@@ -12,6 +12,7 @@ export interface User {
 
 export interface Barber {
   id: string;
+  userId: string; // Link to the User model
   name: string;
   documentNumber: string;
   phone: string;

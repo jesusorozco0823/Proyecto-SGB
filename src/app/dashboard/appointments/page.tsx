@@ -26,9 +26,17 @@ export default function AppointmentsPage() {
     const [cancellingAppointment, setCancellingAppointment] = useState<Appointment | null>(null);
 
     useEffect(() => {
-        const userAppointments = role === 'admin'
-            ? mockAppointments
-            : mockAppointments.filter(a => a.userId === user?.id);
+        let userAppointments: Appointment[] = [];
+        if (role === 'admin' || role === 'superadmin') {
+            userAppointments = mockAppointments;
+        } else if (role === 'client') {
+            userAppointments = mockAppointments.filter(a => a.userId === user?.id);
+        } else if (role === 'barber') {
+            const barberProfile = mockBarbers.find(b => b.userId === user?.id);
+            if (barberProfile) {
+                userAppointments = mockAppointments.filter(a => a.barberId === barberProfile.id);
+            }
+        }
         setAppointments(userAppointments);
     }, [role, user?.id]);
 
@@ -42,6 +50,14 @@ export default function AppointmentsPage() {
     const handleFeedbackSubmit = (rating: number, comment: string) => {
         if (!feedbackAppointment) return;
 
+        // Update in mock data source
+        const apptIndex = mockAppointments.findIndex(a => a.id === feedbackAppointment.id);
+        if (apptIndex !== -1) {
+            mockAppointments[apptIndex].rating = rating;
+            mockAppointments[apptIndex].comment = comment;
+        }
+        
+        // Update local state
         setAppointments(prev =>
             prev.map(appt =>
                 appt.id === feedbackAppointment.id
@@ -50,15 +66,24 @@ export default function AppointmentsPage() {
             )
         );
 
-        console.log(`Feedback submitted for appointment ${feedbackAppointment.id}: ${rating} stars, "${comment}"`);
+        toast({
+            title: "¡Gracias por tu opinión!",
+            description: "Tus comentarios nos ayudan a mejorar.",
+        });
         setFeedbackAppointment(null);
     }
 
     const handleCancelSubmit = (reason: string) => {
         if (!cancellingAppointment) return;
 
-        console.log(`Cita ${cancellingAppointment.id} cancelada por: ${reason}`);
+        // Update in mock data source
+         const apptIndex = mockAppointments.findIndex(a => a.id === cancellingAppointment.id);
+        if (apptIndex !== -1) {
+            mockAppointments[apptIndex].status = 'cancelled';
+            mockAppointments[apptIndex].cancellationReason = reason;
+        }
 
+        // Update local state
         setAppointments(prev =>
             prev.map(appt =>
                 appt.id === cancellingAppointment.id 
@@ -74,22 +99,37 @@ export default function AppointmentsPage() {
 
         setCancellingAppointment(null);
     };
+    
+    const pageTitle = {
+        admin: 'Todas las Citas',
+        superadmin: 'Todas las Citas',
+        client: 'Mis Citas',
+        barber: 'Mis Citas Asignadas'
+    }[role || 'client'];
+
+    const pageDescription = {
+        admin: 'Ver y gestionar todas las citas programadas.',
+        superadmin: 'Ver y gestionar todas las citas programadas.',
+        client: 'Revisa tus citas próximas y pasadas.',
+        barber: 'Revisa las citas en tu agenda.'
+    }[role || 'client'];
+
 
     return (
         <>
             <Card>
                 <CardHeader>
-                    <CardTitle>{role === 'admin' ? 'Todas las Citas' : 'Mis Citas'}</CardTitle>
+                    <CardTitle>{pageTitle}</CardTitle>
                     <CardDescription>
-                        {role === 'admin' ? 'Ver y gestionar todas las citas programadas.' : 'Revisa tus citas próximas y pasadas.'}
+                        {pageDescription}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                {role === 'admin' && <TableHead>Cliente</TableHead>}
-                                <TableHead>Barbero</TableHead>
+                                {(role === 'admin' || role === 'superadmin' || role === 'barber') && <TableHead>Cliente</TableHead>}
+                                {(role === 'admin' || role === 'superadmin' || role === 'client') && <TableHead>Barbero</TableHead>}
                                 <TableHead>Servicios</TableHead>
                                 <TableHead>Fecha y Hora</TableHead>
                                 <TableHead>Estado</TableHead>
@@ -101,8 +141,8 @@ export default function AppointmentsPage() {
                                 const { client, barber, services } = getAppointmentDetails(appt);
                                 return (
                                     <TableRow key={appt.id}>
-                                        {role === 'admin' && <TableCell>{client?.displayName}</TableCell>}
-                                        <TableCell>{barber?.name}</TableCell>
+                                        {(role === 'admin' || role === 'superadmin' || role === 'barber') && <TableCell>{client?.displayName}</TableCell>}
+                                        {(role === 'admin' || role === 'superadmin' || role === 'client') && <TableCell>{barber?.name}</TableCell>}
                                         <TableCell>{services.map(s => s.name).join(', ')}</TableCell>
                                         <TableCell>{format(appt.datetime, "d 'de' MMMM, yyyy 'a las' h:mm a", { locale: es })}</TableCell>
                                         <TableCell>
@@ -121,8 +161,8 @@ export default function AppointmentsPage() {
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                                                     <DropdownMenuItem onSelect={() => setViewingAppointment(appt)}>Ver Detalles</DropdownMenuItem>
-                                                    {appt.status === 'scheduled' && <DropdownMenuItem onSelect={() => setCancellingAppointment(appt)}>Cancelar</DropdownMenuItem>}
-                                                    {appt.status === 'completed' && !appt.rating && <DropdownMenuItem onSelect={() => setFeedbackAppointment(appt)}>Dejar Opinión</DropdownMenuItem>}
+                                                    {role === 'client' && appt.status === 'scheduled' && <DropdownMenuItem onSelect={() => setCancellingAppointment(appt)}>Cancelar</DropdownMenuItem>}
+                                                    {role === 'client' && appt.status === 'completed' && !appt.rating && <DropdownMenuItem onSelect={() => setFeedbackAppointment(appt)}>Dejar Opinión</DropdownMenuItem>}
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>

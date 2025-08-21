@@ -1,3 +1,4 @@
+
 "use client";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -14,6 +15,7 @@ import {
   ShoppingBag,
   Package,
   ShieldCheck,
+  Clock,
 } from 'lucide-react';
 
 const adminNavItems = [
@@ -37,6 +39,13 @@ const clientNavItems = [
   { href: '/dashboard/profile', label: 'Mi Perfil', icon: User },
 ];
 
+const barberNavItems = [
+  { href: '/dashboard', label: 'Panel', icon: LayoutDashboard },
+  { href: '/dashboard/appointments', label: 'Mis Citas', icon: Calendar },
+  { href: '/dashboard/schedule', label: 'Mi Horario', icon: Clock },
+  { href: '/dashboard/profile', label: 'Mi Perfil', icon: User },
+];
+
 export default function SidebarContent() {
     const { role } = useAuth();
     const pathname = usePathname();
@@ -47,6 +56,8 @@ export default function SidebarContent() {
                 return superAdminNavItems;
             case 'admin':
                 return adminNavItems;
+            case 'barber':
+                return barberNavItems;
             default:
                 return clientNavItems;
         }

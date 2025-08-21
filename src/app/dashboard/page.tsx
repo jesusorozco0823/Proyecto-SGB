@@ -3,7 +3,7 @@
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, Warehouse, Scissors, DollarSign, Clock, ShieldCheck } from "lucide-react";
+import { Calendar, Users, Warehouse, Scissors, DollarSign, Clock, ShieldCheck, User } from "lucide-react";
 import Link from 'next/link';
 
 function AdminDashboard() {
@@ -64,6 +64,45 @@ function SuperAdminDashboard() {
                             Gestionar Administradores
                         </Link>
                     </Button>
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+
+function BarberDashboard() {
+    const { user } = useAuth();
+    const stats = [
+        { title: "Citas para Hoy", value: 5, icon: Calendar, color: "text-blue-500" },
+        { title: "Citas de la Semana", value: 23, icon: Calendar, color: "text-purple-500" },
+        { title: "Ganancias de la Semana", value: "$850", icon: DollarSign, color: "text-green-500" },
+    ];
+
+    return (
+        <div className="space-y-6">
+            <h1 className="text-3xl font-bold font-headline">¡Bienvenido, {user?.displayName.split(' ')[0]}!</h1>
+            <p className="text-muted-foreground">Aquí tienes un resumen de tu actividad.</p>
+            <div className="grid gap-4 md:grid-cols-3">
+                {stats.map(stat => (
+                    <Card key={stat.title}>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                            <stat.icon className={`h-4 w-4 text-muted-foreground ${stat.color}`} />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold">{stat.value}</div>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Acciones Rápidas</CardTitle>
+                    <CardDescription>Gestiona tu agenda y disponibilidad.</CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Button asChild><Link href="/dashboard/appointments">Ver Mis Citas</Link></Button>
+                    <Button asChild variant="secondary"><Link href="/dashboard/schedule">Gestionar Mi Horario</Link></Button>
                 </CardContent>
             </Card>
         </div>
@@ -160,7 +199,10 @@ export default function DashboardPage() {
   if (role === 'admin') {
     return <AdminDashboard />;
   }
+  
+  if (role === 'barber') {
+      return <BarberDashboard />;
+  }
 
-  // Cliente y Barbero pueden compartir un dashboard similar para este prototipo
   return <ClientDashboard />;
 }
