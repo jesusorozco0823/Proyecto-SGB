@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,13 @@ import { Star, PlusCircle } from "lucide-react";
 import Image from "next/image";
 import type { Barber } from "@/lib/types";
 import AddBarberDialog from "@/components/add-barber-dialog";
+import EditBarberDialog from "@/components/edit-barber-dialog";
 import { useToast } from "@/hooks/use-toast";
 
 export default function BarbersPage() {
     const [barbers, setBarbers] = useState<Barber[]>(mockBarbers);
     const [isAddBarberDialogOpen, setIsAddBarberDialogOpen] = useState(false);
+    const [editingBarber, setEditingBarber] = useState<Barber | null>(null);
     const { toast } = useToast();
 
     const handleAddBarber = (newBarberData: Omit<Barber, 'id' | 'rating' | 'schedule'>) => {
@@ -35,6 +37,18 @@ export default function BarbersPage() {
 
         setIsAddBarberDialogOpen(false);
     };
+
+    const handleUpdateBarber = (updatedBarber: Barber) => {
+        setBarbers(prevBarbers => 
+            prevBarbers.map(b => b.id === updatedBarber.id ? updatedBarber : b)
+        );
+        toast({
+            title: "Perfil Actualizado",
+            description: `Los datos de ${updatedBarber.name} han sido actualizados.`,
+        });
+        setEditingBarber(null);
+    };
+
 
     return (
         <>
@@ -82,7 +96,9 @@ export default function BarbersPage() {
                                 </div>
                             </CardContent>
                             <CardFooter className="bg-secondary/50 p-4">
-                                <Button variant="outline" className="w-full">Editar Horario y Perfil</Button>
+                                <Button variant="outline" className="w-full" onClick={() => setEditingBarber(barber)}>
+                                    Editar Horario y Perfil
+                                </Button>
                             </CardFooter>
                         </Card>
                     ))}
@@ -93,6 +109,14 @@ export default function BarbersPage() {
                 onOpenChange={setIsAddBarberDialogOpen}
                 onAddBarber={handleAddBarber}
             />
+            {editingBarber && (
+                 <EditBarberDialog
+                    isOpen={!!editingBarber}
+                    onOpenChange={() => setEditingBarber(null)}
+                    onUpdateBarber={handleUpdateBarber}
+                    barber={editingBarber}
+                />
+            )}
         </>
     );
 }
