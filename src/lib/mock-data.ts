@@ -45,12 +45,12 @@ export const mockBarbers: Barber[] = [
     phone: '555-0201',
     skills: ['Cortes Clásicos', 'Degradados (Fades)', 'Afeitados con Toalla Caliente'],
     schedule: {
-      monday: { start: '09:00', end: '18:00' },
-      tuesday: { start: '09:00', end: '18:00' },
+      monday: { start: '09:00 AM', end: '06:00 PM' },
+      tuesday: { start: '09:00 AM', end: '06:00 PM' },
       wednesday: null,
-      thursday: { start: '09:00', end: '18:00' },
-      friday: { start: '09:00', end: '20:00' },
-      saturday: { start: '10:00', end: '16:00' },
+      thursday: { start: '09:00 AM', end: '06:00 PM' },
+      friday: { start: '09:00 AM', end: '08:00 PM' },
+      saturday: { start: '10:00 AM', end: '04:00 PM' },
       sunday: null,
     },
     rating: 4.9,
@@ -65,11 +65,11 @@ export const mockBarbers: Barber[] = [
     skills: ['Estilos Modernos', 'Coloración', 'Esculpido de Barba'],
     schedule: {
       monday: null,
-      tuesday: { start: '10:00', end: '19:00' },
-      wednesday: { start: '10:00', end: '19:00' },
-      thursday: { start: '10:00', end: '19:00' },
-      friday: { start: '10:00', end: '21:00' },
-      saturday: { start: '09:00', end: '17:00' },
+      tuesday: { start: '10:00 AM', end: '07:00 PM' },
+      wednesday: { start: '10:00 AM', end: '07:00 PM' },
+      thursday: { start: '10:00 AM', end: '07:00 PM' },
+      friday: { start: '10:00 AM', end: '09:00 PM' },
+      saturday: { start: '09:00 AM', end: '05:00 PM' },
       sunday: null,
     },
     rating: 4.8,
@@ -112,7 +112,19 @@ export const mockAppointments: Appointment[] = [
     serviceIds: ['service-4'],
     datetime: new Date(new Date().setDate(new Date().getDate() - 30)),
     status: 'completed',
+    rating: 3,
+    comment: "El corte de pelo estuvo bien, pero la espera fue un poco larga incluso con cita."
   },
+  {
+    id: 'appt-4',
+    userId: 'user-2',
+    barberId: 'barber-1',
+    serviceIds: ['service-4'],
+    datetime: new Date(new Date().setDate(new Date().getDate() - 5)),
+    status: 'completed',
+    rating: 4,
+    comment: "Javier es un verdadero profesional. El afeitado con toalla caliente fue increíblemente relajante. Un poco caro pero vale la pena para un capricho."
+  }
 ];
 
 export const mockInventory: InventoryItem[] = [

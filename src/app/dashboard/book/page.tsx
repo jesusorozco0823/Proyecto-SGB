@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { mockServices, mockBarbers } from '@/lib/mock-data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,9 @@ import { useToast } from '@/hooks/use-toast';
 
 type BookingStep = 'service' | 'barber' | 'datetime' | 'confirm';
 
-const timeSlots = ["09:00 AM", "10:00 AM", "11:00 AM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM"];
+const dayOfWeekMap = [
+    'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'
+];
 
 export default function BookingPage() {
   const [step, setStep] = useState<BookingStep>('service');
@@ -30,6 +33,35 @@ export default function BookingPage() {
         : [...prev, serviceId]
     );
   };
+
+  const handleDateSelect = (date: Date | undefined) => {
+    setSelectedDate(date);
+    setSelectedTime(null); // Reset time when date changes
+  }
+
+  const availableTimeSlots = useMemo(() => {
+    if (!selectedBarber || !selectedDate) return [];
+
+    const barber = mockBarbers.find(b => b.id === selectedBarber);
+    if (!barber) return [];
+
+    const dayOfWeek = dayOfWeekMap[selectedDate.getDay()];
+    const daySchedule = barber.schedule[dayOfWeek];
+
+    if (!daySchedule) return []; // Barber doesn't work this day
+
+    const slots = [];
+    let currentTime = new Date(`${selectedDate.toDateString()} ${daySchedule.start}`);
+    const endTime = new Date(`${selectedDate.toDateString()} ${daySchedule.end}`);
+
+    while (currentTime < endTime) {
+      slots.push(currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }));
+      currentTime.setMinutes(currentTime.getMinutes() + 30); // Assuming 30-minute slots
+    }
+
+    return slots;
+  }, [selectedBarber, selectedDate]);
+
 
   const totalDuration = selectedServices.reduce((acc, id) => {
     const service = mockServices.find(s => s.id === id);
@@ -100,16 +132,22 @@ export default function BookingPage() {
             <Calendar
               mode="single"
               selected={selectedDate}
-              onSelect={setSelectedDate}
+              onSelect={handleDateSelect}
               className="rounded-md border self-start"
               disabled={(date) => date < new Date(new Date().setDate(new Date().getDate() - 1))}
             />
             <div className="grid grid-cols-3 gap-2 self-start">
-              {timeSlots.map(time => (
-                <Button key={time} variant={selectedTime === time ? 'default' : 'outline'} onClick={() => setSelectedTime(time)}>
-                  {time}
-                </Button>
-              ))}
+              {availableTimeSlots.length > 0 ? (
+                availableTimeSlots.map(time => (
+                  <Button key={time} variant={selectedTime === time ? 'default' : 'outline'} onClick={() => setSelectedTime(time)}>
+                    {time}
+                  </Button>
+                ))
+              ) : (
+                <p className="col-span-3 text-center text-muted-foreground">
+                  No hay horarios disponibles para este día.
+                </p>
+              )}
             </div>
           </div>
         );
