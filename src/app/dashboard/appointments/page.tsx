@@ -70,6 +70,7 @@ export default function AppointmentsPage() {
                                                 <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                                                 <DropdownMenuItem>Ver Detalles</DropdownMenuItem>
                                                 {appt.status === 'scheduled' && <DropdownMenuItem>Cancelar</DropdownMenuItem>}
+                                                {appt.status === 'completed' && <DropdownMenuItem>Dejar Opinión</DropdownMenuItem>}
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
