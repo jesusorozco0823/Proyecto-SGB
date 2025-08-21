@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { MoreHorizontal } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
@@ -26,21 +27,21 @@ export default function AppointmentsPage() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>{role === 'admin' ? 'All Appointments' : 'My Appointments'}</CardTitle>
+                <CardTitle>{role === 'admin' ? 'Todas las Citas' : 'Mis Citas'}</CardTitle>
                 <CardDescription>
-                    {role === 'admin' ? 'View and manage all scheduled appointments.' : 'Review your upcoming and past appointments.'}
+                    {role === 'admin' ? 'Ver y gestionar todas las citas programadas.' : 'Revisa tus citas próximas y pasadas.'}
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            {role === 'admin' && <TableHead>Client</TableHead>}
-                            <TableHead>Barber</TableHead>
-                            <TableHead>Services</TableHead>
-                            <TableHead>Date & Time</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead><span className="sr-only">Actions</span></TableHead>
+                            {role === 'admin' && <TableHead>Cliente</TableHead>}
+                            <TableHead>Barbero</TableHead>
+                            <TableHead>Servicios</TableHead>
+                            <TableHead>Fecha y Hora</TableHead>
+                            <TableHead>Estado</TableHead>
+                            <TableHead><span className="sr-only">Acciones</span></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -51,10 +52,10 @@ export default function AppointmentsPage() {
                                     {role === 'admin' && <TableCell>{client?.displayName}</TableCell>}
                                     <TableCell>{barber?.name}</TableCell>
                                     <TableCell>{services.map(s => s.name).join(', ')}</TableCell>
-                                    <TableCell>{format(appt.datetime, "MMMM d, yyyy 'at' h:mm a")}</TableCell>
+                                    <TableCell>{format(appt.datetime, "d 'de' MMMM, yyyy 'a las' h:mm a", { locale: es })}</TableCell>
                                     <TableCell>
                                         <Badge variant={appt.status === 'completed' ? 'default' : appt.status === 'scheduled' ? 'secondary' : 'destructive'}>
-                                            {appt.status}
+                                            {appt.status === 'completed' ? 'Completada' : appt.status === 'scheduled' ? 'Programada' : 'Cancelada'}
                                         </Badge>
                                     </TableCell>
                                      <TableCell>
@@ -62,13 +63,13 @@ export default function AppointmentsPage() {
                                             <DropdownMenuTrigger asChild>
                                                 <Button aria-haspopup="true" size="icon" variant="ghost">
                                                     <MoreHorizontal className="h-4 w-4" />
-                                                    <span className="sr-only">Toggle menu</span>
+                                                    <span className="sr-only">Alternar menú</span>
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                <DropdownMenuItem>View Details</DropdownMenuItem>
-                                                {appt.status === 'scheduled' && <DropdownMenuItem>Cancel</DropdownMenuItem>}
+                                                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                                                <DropdownMenuItem>Ver Detalles</DropdownMenuItem>
+                                                {appt.status === 'scheduled' && <DropdownMenuItem>Cancelar</DropdownMenuItem>}
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
@@ -79,7 +80,7 @@ export default function AppointmentsPage() {
                 </Table>
                  {appointments.length === 0 && (
                     <div className="text-center py-12">
-                        <p className="text-muted-foreground">You have no appointments.</p>
+                        <p className="text-muted-foreground">No tienes citas.</p>
                     </div>
                 )}
             </CardContent>

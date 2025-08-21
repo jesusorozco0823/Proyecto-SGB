@@ -14,13 +14,13 @@ export default function FeedbackPage() {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-3xl font-bold font-headline">Client Feedback</h1>
-                <p className="text-muted-foreground">Review and analyze feedback to improve your service.</p>
+                <h1 className="text-3xl font-bold font-headline">Opiniones de Clientes</h1>
+                <p className="text-muted-foreground">Revisa y analiza las opiniones para mejorar tu servicio.</p>
             </div>
             {mockFeedback.length === 0 ? (
                 <Card>
                     <CardContent className="pt-6">
-                        <p className="text-center text-muted-foreground">There is no client feedback to display yet.</p>
+                        <p className="text-center text-muted-foreground">Todavía no hay opiniones de clientes para mostrar.</p>
                     </CardContent>
                 </Card>
             ) : (

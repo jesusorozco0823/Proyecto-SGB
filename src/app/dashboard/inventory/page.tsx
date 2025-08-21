@@ -12,12 +12,12 @@ export default function InventoryPage() {
     <div className="space-y-6">
        <div className="flex justify-between items-center">
         <div>
-            <h1 className="text-3xl font-bold font-headline">Inventory Management</h1>
-            <p className="text-muted-foreground">Track and manage your product stock.</p>
+            <h1 className="text-3xl font-bold font-headline">Gestión de Inventario</h1>
+            <p className="text-muted-foreground">Controla y gestiona el stock de tus productos.</p>
         </div>
         <Button>
             <PlusCircle className="mr-2 h-4 w-4" />
-            Add Product
+            Añadir Producto
         </Button>
       </div>
       <Card>
@@ -26,14 +26,14 @@ export default function InventoryPage() {
             <TableHeader>
               <TableRow>
                 <TableHead className="hidden w-[100px] sm:table-cell">
-                  <span className="sr-only">Image</span>
+                  <span className="sr-only">Imagen</span>
                 </TableHead>
-                <TableHead>Name</TableHead>
+                <TableHead>Nombre</TableHead>
                 <TableHead>SKU</TableHead>
-                <TableHead className="hidden md:table-cell">Price</TableHead>
+                <TableHead className="hidden md:table-cell">Precio</TableHead>
                 <TableHead>Stock</TableHead>
                 <TableHead>
-                  <span className="sr-only">Actions</span>
+                  <span className="sr-only">Acciones</span>
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -63,13 +63,13 @@ export default function InventoryPage() {
                       <DropdownMenuTrigger asChild>
                         <Button aria-haspopup="true" size="icon" variant="ghost">
                           <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
+                          <span className="sr-only">Alternar menú</span>
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
+                        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                        <DropdownMenuItem>Editar</DropdownMenuItem>
+                        <DropdownMenuItem>Eliminar</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

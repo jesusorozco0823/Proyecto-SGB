@@ -14,17 +14,17 @@ import {
 } from 'lucide-react';
 
 const adminNavItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/dashboard/appointments', label: 'All Appointments', icon: Calendar },
-  { href: '/dashboard/barbers', label: 'Barbers', icon: Users },
-  { href: '/dashboard/inventory', label: 'Inventory', icon: Warehouse },
-  { href: '/dashboard/feedback', label: 'Feedback', icon: MessageSquare },
+  { href: '/dashboard', label: 'Panel', icon: LayoutDashboard },
+  { href: '/dashboard/appointments', label: 'Todas las Citas', icon: Calendar },
+  { href: '/dashboard/barbers', label: 'Barberos', icon: Users },
+  { href: '/dashboard/inventory', label: 'Inventario', icon: Warehouse },
+  { href: '/dashboard/feedback', label: 'Opiniones', icon: MessageSquare },
 ];
 
 const clientNavItems = [
-  { href: '/dashboard/book', label: 'Book Appointment', icon: Scissors },
-  { href: '/dashboard/appointments', label: 'My Appointments', icon: Calendar },
-  { href: '/dashboard/profile', label: 'My Profile', icon: User },
+  { href: '/dashboard/book', label: 'Reservar Cita', icon: Scissors },
+  { href: '/dashboard/appointments', label: 'Mis Citas', icon: Calendar },
+  { href: '/dashboard/profile', label: 'Mi Perfil', icon: User },
 ];
 
 export default function SidebarContent() {

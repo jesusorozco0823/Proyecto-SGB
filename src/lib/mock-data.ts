@@ -7,7 +7,7 @@ export const mockUsers: User[] = [
     email: 'client@salonflow.com',
     role: 'client',
     phone: '555-0101',
-    preferences: ['Modern Styles', 'Beard Trims'],
+    preferences: ['Estilos Modernos', 'Arreglos de Barba'],
     avatarUrl: 'https://placehold.co/100x100.png',
   },
   {
@@ -31,8 +31,8 @@ export const mockUsers: User[] = [
 export const mockBarbers: Barber[] = [
   {
     id: 'barber-1',
-    name: 'Javier "The Blade" Rodriguez',
-    skills: ['Classic Cuts', 'Fades', 'Hot Towel Shaves'],
+    name: 'Javier "La Navaja" Rodriguez',
+    skills: ['Cortes Clásicos', 'Degradados (Fades)', 'Afeitados con Toalla Caliente'],
     schedule: {
       monday: { start: '09:00', end: '18:00' },
       tuesday: { start: '09:00', end: '18:00' },
@@ -47,8 +47,8 @@ export const mockBarbers: Barber[] = [
   },
   {
     id: 'barber-2',
-    name: 'Sam "The Stylist" Chen',
-    skills: ['Modern Styles', 'Coloring', 'Beard Sculpting'],
+    name: 'Sam "El Estilista" Chen',
+    skills: ['Estilos Modernos', 'Coloración', 'Esculpido de Barba'],
     schedule: {
       monday: null,
       tuesday: { start: '10:00', end: '19:00' },
@@ -64,11 +64,11 @@ export const mockBarbers: Barber[] = [
 ];
 
 export const mockServices: Service[] = [
-  { id: 'service-1', name: 'Classic Haircut', duration: 30, price: 35, description: "A timeless cut tailored to your style." },
-  { id: 'service-2', name: 'Skin Fade', duration: 45, price: 45, description: "Expertly faded down to the skin for a sharp look." },
-  { id: 'service-3', name: 'Beard Trim & Shape-up', duration: 20, price: 25, description: "Keep your beard looking its best." },
-  { id: 'service-4', name: 'Hot Towel Shave', duration: 40, price: 50, description: "A luxurious and close shave experience." },
-  { id: 'service-5', name: 'Kids Cut', duration: 25, price: 28, description: "A patient and stylish cut for the little ones." },
+  { id: 'service-1', name: 'Corte de Pelo Clásico', duration: 30, price: 35, description: "Un corte atemporal adaptado a tu estilo." },
+  { id: 'service-2', name: 'Corte Degradado (Skin Fade)', duration: 45, price: 45, description: "Un degradado experto hasta la piel para un look nítido." },
+  { id: 'service-3', name: 'Arreglo de Barba y Perfilado', duration: 20, price: 25, description: "Mantén tu barba en su mejor forma." },
+  { id: 'service-4', name: 'Afeitado con Toalla Caliente', duration: 40, price: 50, description: "Una experiencia de afeitado lujosa y apurada." },
+  { id: 'service-5', name: 'Corte para Niños', duration: 25, price: 28, description: "Un corte paciente y con estilo para los más pequeños." },
 ];
 
 const now = new Date();
@@ -78,7 +78,7 @@ export const mockAppointments: Appointment[] = [
     userId: 'user-1',
     barberId: 'barber-1',
     serviceIds: ['service-1', 'service-3'],
-    datetime: new Date(now.setDate(now.getDate() + 2)),
+    datetime: new Date(new Date().setDate(new Date().getDate() + 2)),
     status: 'scheduled',
   },
   {
@@ -86,20 +86,20 @@ export const mockAppointments: Appointment[] = [
     userId: 'user-1',
     barberId: 'barber-2',
     serviceIds: ['service-2'],
-    datetime: new Date(now.setDate(now.getDate() - 14)),
+    datetime: new Date(new Date().setDate(new Date().getDate() - 14)),
     status: 'completed',
   },
 ];
 
 export const mockInventory: InventoryItem[] = [
-    { id: 'item-1', sku: 'POM-001', name: 'High-Hold Pomade', stock: 45, price: 22.00, imageUrl: 'https://placehold.co/200x200.png' },
-    { id: 'item-2', sku: 'BEA-003', name: 'Nourishing Beard Oil', stock: 60, price: 28.50, imageUrl: 'https://placehold.co/200x200.png' },
-    { id: 'item-3', sku: 'SHA-012', name: 'Mint & Tea Tree Shampoo', stock: 32, price: 18.00, imageUrl: 'https://placehold.co/200x200.png' },
-    { id: 'item-4', sku: 'STY-007', name: 'Matte Styling Clay', stock: 15, price: 24.00, imageUrl: 'https://placehold.co/200x200.png' },
+    { id: 'item-1', sku: 'POM-001', name: 'Pomada de Alta Fijación', stock: 45, price: 22.00, imageUrl: 'https://placehold.co/200x200.png' },
+    { id: 'item-2', sku: 'BEA-003', name: 'Aceite Nutritivo para Barba', stock: 60, price: 28.50, imageUrl: 'https://placehold.co/200x200.png' },
+    { id: 'item-3', sku: 'SHA-012', name: 'Champú de Menta y Árbol de Té', stock: 32, price: 18.00, imageUrl: 'https://placehold.co/200x200.png' },
+    { id: 'item-4', sku: 'STY-007', name: 'Arcilla de Peinado Mate', stock: 15, price: 24.00, imageUrl: 'https://placehold.co/200x200.png' },
 ];
 
 export const mockFeedback: Feedback[] = [
-    { id: 'fb-1', appointmentId: 'appt-2', rating: 5, comment: "Sam was fantastic! Best fade I've ever had. The salon is clean and has a great vibe. Will definitely be back." },
-    { id: 'fb-2', appointmentId: 'appt-3', rating: 3, comment: "The haircut was okay, but the wait was a bit long even with an appointment. Music was too loud." },
-    { id: 'fb-3', appointmentId: 'appt-4', rating: 4, comment: "Javier is a true professional. The hot towel shave was incredibly relaxing. A bit pricey but worth it for a treat." },
+    { id: 'fb-1', appointmentId: 'appt-2', rating: 5, comment: "¡Sam fue fantástico! El mejor degradado que he tenido. El salón está limpio y tiene un gran ambiente. Definitivamente volveré." },
+    { id: 'fb-2', appointmentId: 'appt-3', rating: 3, comment: "El corte de pelo estuvo bien, pero la espera fue un poco larga incluso con cita. La música estaba demasiado alta." },
+    { id: 'fb-3', appointmentId: 'appt-4', rating: 4, comment: "Javier es un verdadero profesional. El afeitado con toalla caliente fue increíblemente relajante. Un poco caro pero vale la pena para un capricho." },
 ];

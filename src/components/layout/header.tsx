@@ -27,7 +27,7 @@ export default function Header() {
                     <SheetTrigger asChild>
                         <Button variant="outline" size="icon">
                             <Menu className="h-6 w-6" />
-                            <span className="sr-only">Toggle navigation menu</span>
+                            <span className="sr-only">Alternar menú de navegación</span>
                         </Button>
                     </SheetTrigger>
                     <SheetContent side="left" className="p-0 pt-8 w-[280px]">
@@ -36,7 +36,7 @@ export default function Header() {
                 </Sheet>
             </div>
             <h1 className="text-lg font-semibold md:text-xl font-headline">
-                {user?.role === 'admin' ? 'Admin Dashboard' : 'Client Portal'}
+                {user?.role === 'admin' ? 'Panel de Administrador' : 'Portal de Cliente'}
             </h1>
         </div>
       
@@ -61,12 +61,12 @@ export default function Header() {
           <DropdownMenuSeparator />
           <DropdownMenuItem>
             <User className="mr-2 h-4 w-4" />
-            <span>Profile</span>
+            <span>Perfil</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={logout}>
             <LogOut className="mr-2 h-4 w-4" />
-            <span>Log out</span>
+            <span>Cerrar sesión</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

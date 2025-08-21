@@ -14,17 +14,17 @@ export default function RecommendedServices() {
         const fetchRecommendations = async () => {
             setLoading(true);
             try {
-                // In a real app, this data would be fetched from Firestore
+                // En una aplicación real, estos datos se obtendrían de Firestore
                 const mockInput = {
                     userId: 'user-1',
-                    userHistory: 'Classic Haircut, Beard Trim, Skin Fade',
-                    userPreferences: 'Likes modern styles and sharp fades. Prefers quick services.',
+                    userHistory: 'Corte de pelo clásico, Arreglo de barba, Corte degradado (fade)',
+                    userPreferences: 'Le gustan los estilos modernos y los degradados marcados. Prefiere servicios rápidos.',
                 };
                 const result = await recommendPersonalizedServices(mockInput);
                 setRecommendations(result.recommendations);
             } catch (error) {
-                console.error("Failed to fetch recommendations:", error);
-                // Handle error state if needed
+                console.error("No se pudieron obtener las recomendaciones:", error);
+                // Manejar el estado de error si es necesario
             } finally {
                 setLoading(false);
             }
@@ -38,7 +38,7 @@ export default function RecommendedServices() {
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <Wand2 className="text-primary" />
-                    <span>Recommended For You</span>
+                    <span>Recomendado para Ti</span>
                 </CardTitle>
             </CardHeader>
             <CardContent>

@@ -14,7 +14,7 @@ export default function ProfilePage() {
     const userInitials = user?.displayName?.split(' ').map(n => n[0]).join('') || 'U';
 
     if (!user) {
-        return <div>Loading...</div>;
+        return <div>Cargando...</div>;
     }
 
     return (
@@ -22,36 +22,36 @@ export default function ProfilePage() {
             <div className="lg:col-span-2 space-y-6">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Profile Information</CardTitle>
-                        <CardDescription>Update your personal details and preferences.</CardDescription>
+                        <CardTitle>Información de Perfil</CardTitle>
+                        <CardDescription>Actualiza tus datos personales y preferencias.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="displayName">Full Name</Label>
+                            <Label htmlFor="displayName">Nombre Completo</Label>
                             <Input id="displayName" defaultValue={user.displayName} />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
+                            <Label htmlFor="email">Correo Electrónico</Label>
                             <Input id="email" type="email" defaultValue={user.email} readOnly />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="phone">Phone</Label>
+                            <Label htmlFor="phone">Teléfono</Label>
                             <Input id="phone" type="tel" defaultValue={user.phone} />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="preferences">Preferences</Label>
+                            <Label htmlFor="preferences">Preferencias</Label>
                             <Textarea
                                 id="preferences"
-                                placeholder="e.g., Modern styles, beard trims, quiet appointments..."
+                                placeholder="ej., Estilos modernos, arreglos de barba, citas tranquilas..."
                                 defaultValue={user.preferences?.join(', ')}
                             />
                             <p className="text-xs text-muted-foreground">
-                                Let your barbers know what you like to get the best experience.
+                                Deja que tus barberos sepan lo que te gusta para tener la mejor experiencia.
                             </p>
                         </div>
                     </CardContent>
                     <CardFooter>
-                        <Button>Save Changes</Button>
+                        <Button>Guardar Cambios</Button>
                     </CardFooter>
                 </Card>
             </div>
@@ -64,7 +64,7 @@ export default function ProfilePage() {
                     </Avatar>
                     <h2 className="text-xl font-bold">{user.displayName}</h2>
                     <p className="text-muted-foreground">{user.email}</p>
-                    <Button variant="outline" className="mt-4">Change Photo</Button>
+                    <Button variant="outline" className="mt-4">Cambiar Foto</Button>
                 </Card>
                 
                 <RecommendedServices />

@@ -21,7 +21,7 @@ export default function SentimentBadge({ feedbackText }: SentimentBadgeProps) {
                 const result = await analyzeFeedbackSentiment({ feedbackText });
                 setAnalysis(result);
             } catch (error) {
-                console.error("Sentiment analysis failed:", error);
+                console.error("El análisis de sentimiento falló:", error);
             } finally {
                 setLoading(false);
             }
@@ -30,7 +30,7 @@ export default function SentimentBadge({ feedbackText }: SentimentBadgeProps) {
     }, [feedbackText]);
 
     if (loading) {
-        return <Badge variant="outline">Analyzing...</Badge>;
+        return <Badge variant="outline">Analizando...</Badge>;
     }
 
     if (!analysis) {
@@ -39,6 +39,12 @@ export default function SentimentBadge({ feedbackText }: SentimentBadgeProps) {
 
     const { sentiment, confidence } = analysis;
     const confidencePercent = (confidence * 100).toFixed(0);
+    
+    const sentimentText = {
+        positive: 'Positivo',
+        negative: 'Negativo',
+        neutral: 'Neutral'
+    }[sentiment];
 
     return (
         <TooltipProvider>
@@ -51,11 +57,11 @@ export default function SentimentBadge({ feedbackText }: SentimentBadgeProps) {
                             'bg-gray-100 text-gray-800 border-gray-200': sentiment === 'neutral',
                         })}
                     >
-                        {sentiment}
+                        {sentimentText}
                     </Badge>
                 </TooltipTrigger>
                 <TooltipContent>
-                    <p>AI analysis confidence: {confidencePercent}%</p>
+                    <p>Confianza del análisis AI: {confidencePercent}%</p>
                 </TooltipContent>
             </Tooltip>
         </TooltipProvider>

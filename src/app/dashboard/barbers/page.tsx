@@ -11,12 +11,12 @@ export default function BarbersPage() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline">Manage Barbers</h1>
-                    <p className="text-muted-foreground">Add, edit, and manage barber profiles and schedules.</p>
+                    <h1 className="text-3xl font-bold font-headline">Gestionar Barberos</h1>
+                    <p className="text-muted-foreground">Añade, edita y gestiona los perfiles y horarios de los barberos.</p>
                 </div>
                 <Button>
                     <PlusCircle className="mr-2 h-4 w-4" />
-                    Add Barber
+                    Añadir Barbero
                 </Button>
             </div>
 
@@ -44,7 +44,7 @@ export default function BarbersPage() {
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-sm font-semibold mb-2">Skills:</p>
+                            <p className="text-sm font-semibold mb-2">Habilidades:</p>
                             <div className="flex flex-wrap gap-2">
                                 {barber.skills.map((skill) => (
                                     <Badge key={skill} variant="secondary">{skill}</Badge>
@@ -52,7 +52,7 @@ export default function BarbersPage() {
                             </div>
                         </CardContent>
                         <CardFooter className="bg-secondary/50 p-4">
-                             <Button variant="outline" className="w-full">Edit Schedule & Profile</Button>
+                             <Button variant="outline" className="w-full">Editar Horario y Perfil</Button>
                         </CardFooter>
                     </Card>
                 ))}

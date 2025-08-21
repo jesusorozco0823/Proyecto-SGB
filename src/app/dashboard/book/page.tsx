@@ -43,8 +43,8 @@ export default function BookingPage() {
   
   const handleBooking = () => {
     toast({
-        title: "Appointment Booked!",
-        description: "Your appointment has been successfully scheduled. See you soon!",
+        title: "¡Cita Reservada!",
+        description: "Tu cita ha sido programada exitosamente. ¡Nos vemos pronto!",
     });
     // Reset state
     setStep('service');
@@ -119,18 +119,18 @@ export default function BookingPage() {
         return (
             <div className="space-y-4">
                 <div className="p-4 border rounded-lg">
-                    <h3 className="font-semibold mb-2">Services</h3>
+                    <h3 className="font-semibold mb-2">Servicios</h3>
                     <ul className="list-disc list-inside text-muted-foreground">
                         {services.map(s => <li key={s.id}>{s.name} (${s.price.toFixed(2)})</li>)}
                     </ul>
                 </div>
                 <div className="p-4 border rounded-lg">
-                    <h3 className="font-semibold mb-2">Barber</h3>
+                    <h3 className="font-semibold mb-2">Barbero</h3>
                     <p className="text-muted-foreground">{barber?.name}</p>
                 </div>
                 <div className="p-4 border rounded-lg">
-                    <h3 className="font-semibold mb-2">Date & Time</h3>
-                    <p className="text-muted-foreground">{selectedDate?.toLocaleDateString()} at {selectedTime}</p>
+                    <h3 className="font-semibold mb-2">Fecha y Hora</h3>
+                    <p className="text-muted-foreground">{selectedDate?.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })} a las {selectedTime}</p>
                 </div>
             </div>
         )
@@ -138,10 +138,10 @@ export default function BookingPage() {
   };
 
   const STEPS: { id: BookingStep, title: string, icon: React.ElementType }[] = [
-      { id: 'service', title: 'Services', icon: Scissors },
-      { id: 'barber', title: 'Barber', icon: User },
-      { id: 'datetime', title: 'Date & Time', icon: CalendarIcon },
-      { id: 'confirm', title: 'Confirm', icon: Check },
+      { id: 'service', title: 'Servicios', icon: Scissors },
+      { id: 'barber', title: 'Barbero', icon: User },
+      { id: 'datetime', title: 'Fecha y Hora', icon: CalendarIcon },
+      { id: 'confirm', title: 'Confirmar', icon: Check },
   ];
   
   const currentStepIndex = STEPS.findIndex(s => s.id === step);
@@ -149,8 +149,8 @@ export default function BookingPage() {
   return (
     <div className="space-y-8">
         <div>
-            <h1 className="text-3xl font-bold font-headline">Book an Appointment</h1>
-            <p className="text-muted-foreground">Follow the steps to schedule your visit.</p>
+            <h1 className="text-3xl font-bold font-headline">Reservar una Cita</h1>
+            <p className="text-muted-foreground">Sigue los pasos para programar tu visita.</p>
         </div>
 
         <div className="flex justify-between items-center p-2 border rounded-full mb-8">
@@ -173,13 +173,13 @@ export default function BookingPage() {
       <Card>
         <CardHeader>
           <CardTitle>
-            Step {currentStepIndex + 1}: Select {STEPS[currentStepIndex].title}
+            Paso {currentStepIndex + 1}: Seleccionar {STEPS[currentStepIndex].title}
           </CardTitle>
           <CardDescription>
-            {step === 'service' && 'Choose one or more services.'}
-            {step === 'barber' && 'Pick your preferred barber.'}
-            {step === 'datetime' && 'Select a date and time.'}
-            {step === 'confirm' && 'Please review your appointment details.'}
+            {step === 'service' && 'Elige uno o más servicios.'}
+            {step === 'barber' && 'Elige tu barbero preferido.'}
+            {step === 'datetime' && 'Selecciona una fecha y hora.'}
+            {step === 'confirm' && 'Por favor, revisa los detalles de tu cita.'}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -194,17 +194,17 @@ export default function BookingPage() {
             </div>
              <div className="flex items-center gap-2">
              {step !== 'service' && (
-                <Button variant="outline" onClick={() => setStep(STEPS[currentStepIndex-1].id)}>Back</Button>
+                <Button variant="outline" onClick={() => setStep(STEPS[currentStepIndex-1].id)}>Atrás</Button>
             )}
 
             {step === 'confirm' ? (
-                <Button onClick={handleBooking}>Confirm Booking</Button>
+                <Button onClick={handleBooking}>Confirmar Reserva</Button>
             ) : (
                 <Button onClick={() => setStep(STEPS[currentStepIndex+1].id)} disabled={
                     (step === 'service' && selectedServices.length === 0) ||
                     (step === 'barber' && !selectedBarber) ||
                     (step === 'datetime' && (!selectedDate || !selectedTime))
-                }>Next</Button>
+                }>Siguiente</Button>
             )}
             </div>
         </div>

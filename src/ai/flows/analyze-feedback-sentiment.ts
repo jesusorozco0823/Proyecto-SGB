@@ -38,12 +38,12 @@ const prompt = ai.definePrompt({
   name: 'analyzeFeedbackSentimentPrompt',
   input: {schema: AnalyzeFeedbackSentimentInputSchema},
   output: {schema: AnalyzeFeedbackSentimentOutputSchema},
-  prompt: `Analyze the sentiment of the following feedback text. Classify it as positive, negative, or neutral. Also, provide a confidence level for your analysis between 0 and 1.
+  prompt: `Analiza el sentimiento del siguiente texto de opinión. Clasifícalo como positivo, negativo o neutral. Además, proporciona un nivel de confianza para tu análisis entre 0 y 1.
 
-Feedback Text: {{{feedbackText}}}
+Texto de Opinión: {{{feedbackText}}}
 
-Your response should be formatted as a JSON object with "sentiment" and "confidence" fields.
-Make sure the sentiment is one of "positive", "negative", or "neutral". The confidence should be a number between 0 and 1.
+Tu respuesta debe estar formateada como un objeto JSON con los campos "sentiment" y "confidence".
+Asegúrate de que el sentimiento sea uno de "positive", "negative" o "neutral". La confianza debe ser un número entre 0 y 1.
 `,
 });
 

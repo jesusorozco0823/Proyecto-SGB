@@ -42,40 +42,40 @@ export default function AuthPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
             <h1 className="text-4xl font-headline font-bold text-primary">SalonFlow</h1>
-            <p className="text-muted-foreground mt-2">The premier management system for modern barbershops.</p>
+            <p className="text-muted-foreground mt-2">El sistema de gestión premier para barberías modernas.</p>
         </div>
         <Tabs defaultValue="login" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="login">Login</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
+            <TabsTrigger value="signup">Registrarse</TabsTrigger>
           </TabsList>
           <TabsContent value="login">
             <Card>
               <CardHeader>
-                <CardTitle>Welcome Back</CardTitle>
+                <CardTitle>Bienvenido de Nuevo</CardTitle>
                 <CardDescription>
-                  Choose your role to access your dashboard.
+                  Elige tu rol para acceder a tu panel.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email-login">Email</Label>
-                  <Input id="email-login" type="email" placeholder="m@example.com" defaultValue="client@salonflow.com" />
+                  <Label htmlFor="email-login">Correo Electrónico</Label>
+                  <Input id="email-login" type="email" placeholder="m@ejemplo.com" defaultValue="client@salonflow.com" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password-login">Password</Label>
+                  <Label htmlFor="password-login">Contraseña</Label>
                   <Input id="password-login" type="password" defaultValue="password" />
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
-                    <Button onClick={() => handleLogin('client')} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">Login as Client</Button>
-                    <Button onClick={() => handleLogin('admin')} className="w-full bg-secondary hover:bg-secondary/80 text-secondary-foreground">Login as Admin</Button>
+                    <Button onClick={() => handleLogin('client')} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">Entrar como Cliente</Button>
+                    <Button onClick={() => handleLogin('admin')} className="w-full bg-secondary hover:bg-secondary/80 text-secondary-foreground">Entrar como Admin</Button>
                 </div>
-                 <p className="text-xs text-muted-foreground text-center">Or</p>
+                 <p className="text-xs text-muted-foreground text-center">O</p>
                 <Button variant="outline" className="w-full">
                   <GoogleIcon className="mr-2 h-4 w-4" />
-                  Sign in with Google
+                  Iniciar sesión con Google
                 </Button>
               </CardFooter>
             </Card>
@@ -83,31 +83,31 @@ export default function AuthPage() {
           <TabsContent value="signup">
             <Card>
               <CardHeader>
-                <CardTitle>Create an Account</CardTitle>
+                <CardTitle>Crear una Cuenta</CardTitle>
                 <CardDescription>
-                  Enter your details to get started with SalonFlow.
+                  Ingresa tus datos para empezar con SalonFlow.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                  <div className="space-y-2">
-                  <Label htmlFor="name-signup">Full Name</Label>
+                  <Label htmlFor="name-signup">Nombre Completo</Label>
                   <Input id="name-signup" placeholder="John Doe" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email-signup">Email</Label>
-                  <Input id="email-signup" type="email" placeholder="m@example.com" />
+                  <Label htmlFor="email-signup">Correo Electrónico</Label>
+                  <Input id="email-signup" type="email" placeholder="m@ejemplo.com" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password-signup">Password</Label>
+                  <Label htmlFor="password-signup">Contraseña</Label>
                   <Input id="password-signup" type="password" />
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
-                <Button onClick={() => handleLogin('client')} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">Create Account</Button>
-                 <p className="text-xs text-muted-foreground text-center">Or</p>
+                <Button onClick={() => handleLogin('client')} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">Crear Cuenta</Button>
+                 <p className="text-xs text-muted-foreground text-center">O</p>
                 <Button variant="outline" className="w-full">
                   <GoogleIcon className="mr-2 h-4 w-4" />
-                  Sign up with Google
+                  Registrarse con Google
                 </Button>
               </CardFooter>
             </Card>

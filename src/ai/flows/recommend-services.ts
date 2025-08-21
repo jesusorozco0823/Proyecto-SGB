@@ -30,12 +30,12 @@ const prompt = ai.definePrompt({
   name: 'recommendPersonalizedServicesPrompt',
   input: {schema: RecommendPersonalizedServicesInputSchema},
   output: {schema: RecommendPersonalizedServicesOutputSchema},
-  prompt: `You are a personal stylist that recommends personalized services to clients based on their past history and preferences.
+  prompt: `Eres un estilista personal que recomienda servicios personalizados a clientes basándose en su historial y preferencias.
 
-  User History: {{{userHistory}}}
-  User Preferences: {{{userPreferences}}}
+  Historial del Usuario: {{{userHistory}}}
+  Preferencias del Usuario: {{{userPreferences}}}
 
-  Based on the user's history and preferences, recommend a list of services that they might be interested in. Just return a plain list of service names. No extra text.`,
+  Basándote en el historial y las preferencias del usuario, recomienda una lista de servicios que podrían interesarle. Devuelve solo una lista simple de nombres de servicios. Sin texto adicional.`,
 });
 
 const recommendPersonalizedServicesFlow = ai.defineFlow(
