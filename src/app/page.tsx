@@ -41,7 +41,7 @@ export default function AuthPage() {
     <div className="flex items-center justify-center min-h-screen bg-background p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-            <h1 className="text-4xl font-headline font-bold text-primary">SalonFlow</h1>
+            <h1 className="text-4xl font-headline font-bold text-primary">Sistema de Gestión de Barberías</h1>
             <p className="text-muted-foreground mt-2">El sistema de gestión premier para barberías modernas.</p>
         </div>
         <Tabs defaultValue="login" className="w-full">

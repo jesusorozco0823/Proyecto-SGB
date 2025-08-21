@@ -37,7 +37,7 @@ export default function SidebarContent() {
             <div className="flex h-16 items-center border-b px-6">
                 <Link href="/dashboard" className="flex items-center gap-2 font-semibold font-headline">
                     <Scissors className="h-6 w-6 text-primary" />
-                    <span className="">SalonFlow</span>
+                    <span className="">Sistema de Gestión de Barberías</span>
                 </Link>
             </div>
             <div className="flex-1 overflow-auto py-2">

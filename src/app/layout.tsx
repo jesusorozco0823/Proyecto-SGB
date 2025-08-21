@@ -16,8 +16,8 @@ const ptSans = PT_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'SalonFlow',
-  description: 'The premier management system for modern barbershops.',
+  title: 'Sistema de Gestión de Barberías',
+  description: 'El sistema de gestión premier para barberías modernas.',
 };
 
 export default function RootLayout({
