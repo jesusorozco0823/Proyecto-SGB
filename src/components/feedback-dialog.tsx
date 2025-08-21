@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -29,8 +29,15 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const { toast } = useToast();
 
-  const appointmentServices = mockServices.filter(s => appointment.serviceIds.includes(s.id));
-  const appointmentBarber = mockBarbers.find(b => b.id === appointment.barberId);
+  const appointmentServices = useMemo(() => 
+    mockServices.filter(s => appointment.serviceIds.includes(s.id)),
+    [appointment.serviceIds]
+  );
+  
+  const appointmentBarber = useMemo(() =>
+    mockBarbers.find(b => b.id === appointment.barberId),
+    [appointment.barberId]
+  );
 
   useEffect(() => {
     if (rating > 0 && isOpen) {
@@ -54,7 +61,7 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
     } else {
       setSuggestions([]);
     }
-  }, [rating, isOpen, appointment.id, appointmentServices, appointmentBarber]);
+  }, [rating, isOpen, appointmentServices, appointmentBarber]);
   
   useEffect(() => {
     // Reset state only when dialog is closed
