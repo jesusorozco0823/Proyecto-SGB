@@ -1,4 +1,4 @@
-import type { User, Barber, Service, Appointment, InventoryItem, Feedback } from './types';
+import type { User, Barber, Service, Appointment, InventoryItem, Feedback, Order } from './types';
 
 export const mockUsers: User[] = [
   {
@@ -103,3 +103,37 @@ export const mockFeedback: Feedback[] = [
     { id: 'fb-2', appointmentId: 'appt-3', rating: 3, comment: "El corte de pelo estuvo bien, pero la espera fue un poco larga incluso con cita. La música estaba demasiado alta." },
     { id: 'fb-3', appointmentId: 'appt-4', rating: 4, comment: "Javier es un verdadero profesional. El afeitado con toalla caliente fue increíblemente relajante. Un poco caro pero vale la pena para un capricho." },
 ];
+
+export const mockOrders: Order[] = [
+    {
+        id: 'order-1',
+        userId: 'user-1',
+        items: [
+            { itemId: 'item-1', quantity: 1, price: 22.00 },
+            { itemId: 'item-2', quantity: 1, price: 28.50 },
+        ],
+        total: 50.50,
+        status: 'delivered',
+        createdAt: new Date(new Date().setDate(new Date().getDate() - 5)),
+    },
+    {
+        id: 'order-2',
+        userId: 'user-3', // Example with another user
+        items: [
+            { itemId: 'item-4', quantity: 2, price: 24.00 },
+        ],
+        total: 48.00,
+        status: 'shipped',
+        createdAt: new Date(new Date().setDate(new Date().getDate() - 2)),
+    },
+    {
+        id: 'order-3',
+        userId: 'user-1',
+        items: [
+            { itemId: 'item-3', quantity: 1, price: 18.00 },
+        ],
+        total: 18.00,
+        status: 'pending',
+        createdAt: new Date(),
+    }
+]

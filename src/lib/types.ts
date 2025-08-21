@@ -52,3 +52,16 @@ export interface Feedback {
   comment: string;
   sentiment?: 'positive' | 'negative' | 'neutral';
 }
+
+export interface Order {
+    id: string;
+    userId: string;
+    items: {
+        itemId: string;
+        quantity: number;
+        price: number; // Price at time of purchase
+    }[];
+    total: number;
+    status: 'pending' | 'shipped' | 'delivered' | 'cancelled';
+    createdAt: Date;
+}

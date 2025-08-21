@@ -12,6 +12,7 @@ import {
   Users,
   User,
   ShoppingBag,
+  Package,
 } from 'lucide-react';
 
 const adminNavItems = [
@@ -19,6 +20,7 @@ const adminNavItems = [
   { href: '/dashboard/appointments', label: 'Todas las Citas', icon: Calendar },
   { href: '/dashboard/barbers', label: 'Barberos', icon: Users },
   { href: '/dashboard/inventory', label: 'Inventario', icon: Warehouse },
+  { href: '/dashboard/orders', label: 'Pedidos', icon: Package },
   { href: '/dashboard/feedback', label: 'Opiniones', icon: MessageSquare },
 ];
 
