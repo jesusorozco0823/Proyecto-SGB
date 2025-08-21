@@ -35,7 +35,7 @@ export default function EditBarberDialog({ isOpen, onOpenChange, onUpdateBarber,
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !skills || !imageUrl || !documentNumber || !phone || !barber) {
+    if (!name || !skills || !documentNumber || !phone || !barber) {
         alert("Por favor, completa todos los campos.");
         return;
     }
@@ -46,7 +46,7 @@ export default function EditBarberDialog({ isOpen, onOpenChange, onUpdateBarber,
         documentNumber,
         phone,
         skills: skills.split(',').map(skill => skill.trim()),
-        imageUrl
+        imageUrl: imageUrl || 'https://placehold.co/400x400.png'
     });
   };
 
@@ -79,7 +79,7 @@ export default function EditBarberDialog({ isOpen, onOpenChange, onUpdateBarber,
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="barber-image-edit" className="text-right">URL de Imagen</Label>
-                    <Input id="barber-image-edit" type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="col-span-3" required />
+                    <Input id="barber-image-edit" type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="col-span-3" />
                 </div>
             </div>
             <DialogFooter>

@@ -25,8 +25,8 @@ export default function AddBarberDialog({ isOpen, onOpenChange, onAddBarber }: A
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !skills || !imageUrl || !documentNumber || !phone || !password) {
-        alert("Por favor, completa todos los campos.");
+    if (!name || !skills || !documentNumber || !phone || !password) {
+        alert("Por favor, completa todos los campos obligatorios.");
         return;
     }
     
@@ -35,7 +35,7 @@ export default function AddBarberDialog({ isOpen, onOpenChange, onAddBarber }: A
         documentNumber,
         phone,
         skills: skills.split(',').map(skill => skill.trim()),
-        imageUrl
+        imageUrl: imageUrl || 'https://placehold.co/400x400.png'
     });
 
     // Reset form
@@ -80,7 +80,7 @@ export default function AddBarberDialog({ isOpen, onOpenChange, onAddBarber }: A
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="barber-image" className="text-right">URL de Imagen</Label>
-                    <Input id="barber-image" type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="col-span-3" placeholder="https://placehold.co/400x400.png" required />
+                    <Input id="barber-image" type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="col-span-3" placeholder="https://placehold.co/400x400.png" />
                 </div>
             </div>
             <DialogFooter>
