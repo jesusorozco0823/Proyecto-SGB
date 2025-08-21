@@ -4,7 +4,7 @@ export const mockUsers: User[] = [
   {
     id: 'user-1',
     displayName: 'Alex Johnson',
-    email: 'client@salonflow.com',
+    documentNumber: '11111111',
     role: 'client',
     phone: '555-0101',
     preferences: ['Estilos Modernos', 'Arreglos de Barba'],
@@ -13,7 +13,7 @@ export const mockUsers: User[] = [
   {
     id: 'user-2',
     displayName: 'Maria Garcia',
-    email: 'admin@salonflow.com',
+    documentNumber: '22222222',
     role: 'admin',
     phone: '555-0102',
     avatarUrl: 'https://placehold.co/100x100.png',
@@ -21,7 +21,7 @@ export const mockUsers: User[] = [
   {
     id: 'user-3',
     displayName: 'Casey Lee',
-    email: 'casey@salonflow.com',
+    documentNumber: '33333333',
     role: 'barber',
     phone: '555-0103',
     avatarUrl: 'https://placehold.co/100x100.png',

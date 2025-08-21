@@ -31,8 +31,8 @@ export default function ProfilePage() {
                             <Input id="displayName" defaultValue={user.displayName} />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="email">Correo Electrónico</Label>
-                            <Input id="email" type="email" defaultValue={user.email} readOnly />
+                            <Label htmlFor="documentNumber">Número de Documento</Label>
+                            <Input id="documentNumber" type="text" defaultValue={user.documentNumber} readOnly />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="phone">Teléfono</Label>
@@ -63,7 +63,7 @@ export default function ProfilePage() {
                         <AvatarFallback className="text-3xl">{userInitials}</AvatarFallback>
                     </Avatar>
                     <h2 className="text-xl font-bold">{user.displayName}</h2>
-                    <p className="text-muted-foreground">{user.email}</p>
+                    <p className="text-muted-foreground">{user.documentNumber}</p>
                     <Button variant="outline" className="mt-4">Cambiar Foto</Button>
                 </Card>
                 

@@ -3,7 +3,7 @@ export type UserRole = 'client' | 'admin' | 'barber';
 export interface User {
   id: string;
   displayName: string;
-  email: string;
+  documentNumber: string;
   role: UserRole;
   phone?: string;
   preferences?: string[];

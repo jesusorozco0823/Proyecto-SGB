@@ -59,8 +59,8 @@ export default function AuthPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email-login">Correo Electrónico</Label>
-                  <Input id="email-login" type="email" placeholder="m@ejemplo.com" defaultValue="client@salonflow.com" />
+                  <Label htmlFor="document-login">Número de Documento</Label>
+                  <Input id="document-login" type="text" placeholder="12345678" defaultValue="11111111" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password-login">Contraseña</Label>
@@ -94,8 +94,12 @@ export default function AuthPage() {
                   <Input id="name-signup" placeholder="John Doe" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email-signup">Correo Electrónico</Label>
-                  <Input id="email-signup" type="email" placeholder="m@ejemplo.com" />
+                  <Label htmlFor="document-signup">Número de Documento</Label>
+                  <Input id="document-signup" type="text" placeholder="12345678" />
+                </div>
+                 <div className="space-y-2">
+                  <Label htmlFor="phone-signup">Número de Celular</Label>
+                  <Input id="phone-signup" type="tel" placeholder="3001234567" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password-signup">Contraseña</Label>
