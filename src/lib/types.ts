@@ -13,6 +13,8 @@ export interface User {
 export interface Barber {
   id: string;
   name: string;
+  documentNumber: string;
+  phone: string;
   skills: string[];
   schedule: Record<string, { start: string; end: string } | null>;
   rating: number;

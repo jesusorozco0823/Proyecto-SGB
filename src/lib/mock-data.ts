@@ -40,6 +40,8 @@ export const mockBarbers: Barber[] = [
   {
     id: 'barber-1',
     name: 'Javier "La Navaja" Rodriguez',
+    documentNumber: '44444444',
+    phone: '555-0201',
     skills: ['Cortes Clásicos', 'Degradados (Fades)', 'Afeitados con Toalla Caliente'],
     schedule: {
       monday: { start: '09:00', end: '18:00' },
@@ -56,6 +58,8 @@ export const mockBarbers: Barber[] = [
   {
     id: 'barber-2',
     name: 'Sam "El Estilista" Chen',
+    documentNumber: '55555555',
+    phone: '555-0202',
     skills: ['Estilos Modernos', 'Coloración', 'Esculpido de Barba'],
     schedule: {
       monday: null,

@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { mockBarbers } from "@/lib/mock-data";
-import { Star, PlusCircle } from "lucide-react";
+import { Star, PlusCircle, Phone, Fingerprint } from "lucide-react";
 import Image from "next/image";
 import type { Barber } from "@/lib/types";
 import AddBarberDialog from "@/components/add-barber-dialog";
@@ -66,7 +66,7 @@ export default function BarbersPage() {
 
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {barbers.map((barber) => (
-                        <Card key={barber.id} className="overflow-hidden">
+                        <Card key={barber.id} className="overflow-hidden flex flex-col">
                             <div className="relative h-48 w-full">
                                 <Image
                                     src={barber.imageUrl}
@@ -87,15 +87,27 @@ export default function BarbersPage() {
                                     </div>
                                 </div>
                             </CardHeader>
-                            <CardContent>
-                                <p className="text-sm font-semibold mb-2">Habilidades:</p>
-                                <div className="flex flex-wrap gap-2">
-                                    {barber.skills.map((skill) => (
-                                        <Badge key={skill} variant="secondary">{skill}</Badge>
-                                    ))}
+                            <CardContent className="flex-grow space-y-4">
+                                <div>
+                                    <p className="text-sm font-semibold mb-2">Habilidades:</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {barber.skills.map((skill) => (
+                                            <Badge key={skill} variant="secondary">{skill}</Badge>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="space-y-2 text-sm text-muted-foreground">
+                                     <div className="flex items-center gap-2">
+                                        <Fingerprint className="h-4 w-4" />
+                                        <span>{barber.documentNumber}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Phone className="h-4 w-4" />
+                                        <span>{barber.phone}</span>
+                                    </div>
                                 </div>
                             </CardContent>
-                            <CardFooter className="bg-secondary/50 p-4">
+                            <CardFooter className="bg-secondary/50 p-4 mt-auto">
                                 <Button variant="outline" className="w-full" onClick={() => setEditingBarber(barber)}>
                                     Editar Horario y Perfil
                                 </Button>
