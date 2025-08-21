@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Users,
   User,
+  ShoppingBag,
 } from 'lucide-react';
 
 const adminNavItems = [
@@ -24,6 +25,7 @@ const adminNavItems = [
 const clientNavItems = [
   { href: '/dashboard/book', label: 'Reservar Cita', icon: Scissors },
   { href: '/dashboard/appointments', label: 'Mis Citas', icon: Calendar },
+  { href: '/dashboard/products', label: 'Productos', icon: ShoppingBag },
   { href: '/dashboard/profile', label: 'Mi Perfil', icon: User },
 ];
 
