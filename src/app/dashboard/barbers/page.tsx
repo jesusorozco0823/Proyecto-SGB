@@ -27,8 +27,8 @@ export default function BarbersPage() {
                             <Image
                                 src={barber.imageUrl}
                                 alt={barber.name}
-                                layout="fill"
-                                objectFit="cover"
+                                fill
+                                className="object-cover"
                                 data-ai-hint="barber portrait"
                             />
                         </div>
