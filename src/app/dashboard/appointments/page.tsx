@@ -12,10 +12,12 @@ import { MoreHorizontal } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import FeedbackDialog from '@/components/feedback-dialog';
+import AppointmentDetailsDialog from '@/components/appointment-details-dialog';
 
 export default function AppointmentsPage() {
     const { user, role } = useAuth();
     const [feedbackAppointment, setFeedbackAppointment] = useState<Appointment | null>(null);
+    const [viewingAppointment, setViewingAppointment] = useState<Appointment | null>(null);
 
     const appointments = role === 'admin'
         ? mockAppointments
@@ -79,7 +81,7 @@ export default function AppointmentsPage() {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                    <DropdownMenuItem>Ver Detalles</DropdownMenuItem>
+                                                    <DropdownMenuItem onSelect={() => setViewingAppointment(appt)}>Ver Detalles</DropdownMenuItem>
                                                     {appt.status === 'scheduled' && <DropdownMenuItem>Cancelar</DropdownMenuItem>}
                                                     {appt.status === 'completed' && <DropdownMenuItem onSelect={() => setFeedbackAppointment(appt)}>Dejar Opinión</DropdownMenuItem>}
                                                 </DropdownMenuContent>
@@ -103,6 +105,13 @@ export default function AppointmentsPage() {
                     onOpenChange={() => setFeedbackAppointment(null)}
                     appointment={feedbackAppointment}
                     onSubmit={handleFeedbackSubmit}
+                />
+            )}
+            {viewingAppointment && (
+                <AppointmentDetailsDialog
+                    isOpen={!!viewingAppointment}
+                    onOpenChange={() => setViewingAppointment(null)}
+                    appointment={viewingAppointment}
                 />
             )}
         </>
