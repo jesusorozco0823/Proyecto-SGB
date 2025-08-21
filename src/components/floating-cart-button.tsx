@@ -8,12 +8,14 @@ import { cn } from '@/lib/utils';
 
 interface FloatingCartButtonProps {
   itemCount: number;
+  onClick: () => void;
 }
 
-export default function FloatingCartButton({ itemCount }: FloatingCartButtonProps) {
+export default function FloatingCartButton({ itemCount, onClick }: FloatingCartButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const [wasDragged, setWasDragged] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -23,36 +25,27 @@ export default function FloatingCartButton({ itemCount }: FloatingCartButtonProp
     setPosition({ x: initialX, y: initialY });
   }, []);
 
-  const handleMouseDown = (e: MouseEvent<HTMLButtonElement>) => {
+  const handleDragStart = (clientX: number, clientY: number) => {
     if (buttonRef.current) {
       setIsDragging(true);
+      setWasDragged(false);
       const rect = buttonRef.current.getBoundingClientRect();
       setOffset({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
+        x: clientX - rect.left,
+        y: clientY - rect.top,
       });
     }
   };
 
-  const handleTouchStart = (e: TouchEvent<HTMLButtonElement>) => {
-    if (buttonRef.current) {
-        setIsDragging(true);
-        const touch = e.touches[0];
-        const rect = buttonRef.current.getBoundingClientRect();
-        setOffset({
-            x: touch.clientX - rect.left,
-            y: touch.clientY - rect.top,
-        });
-    }
-  };
+  const handleMouseDown = (e: MouseEvent<HTMLButtonElement>) => handleDragStart(e.clientX, e.clientY);
+  const handleTouchStart = (e: TouchEvent<HTMLButtonElement>) => handleDragStart(e.touches[0].clientX, e.touches[0].clientY);
 
-  const handleMouseMove = (e: globalThis.MouseEvent) => {
-    if (isDragging) {
-      e.preventDefault();
-      let newX = e.clientX - offset.x;
-      let newY = e.clientY - offset.y;
+  const handleDragMove = (clientX: number, clientY: number) => {
+     if (isDragging) {
+      setWasDragged(true);
+      let newX = clientX - offset.x;
+      let newY = clientY - offset.y;
 
-      // Limitar al viewport
       const maxX = window.innerWidth - (buttonRef.current?.offsetWidth || 0);
       const maxY = window.innerHeight - (buttonRef.current?.offsetHeight || 0);
 
@@ -61,50 +54,45 @@ export default function FloatingCartButton({ itemCount }: FloatingCartButtonProp
       
       setPosition({ x: newX, y: newY });
     }
+  }
+
+  const handleMouseMove = (e: globalThis.MouseEvent) => {
+    e.preventDefault();
+    handleDragMove(e.clientX, e.clientY);
   };
   
   const handleTouchMove = (e: globalThis.TouchEvent) => {
-    if (isDragging) {
-        const touch = e.touches[0];
-        let newX = touch.clientX - offset.x;
-        let newY = touch.clientY - offset.y;
-
-        const maxX = window.innerWidth - (buttonRef.current?.offsetWidth || 0);
-        const maxY = window.innerHeight - (buttonRef.current?.offsetHeight || 0);
-
-        newX = Math.max(0, Math.min(newX, maxX));
-        newY = Math.max(0, Math.min(newY, maxY));
-
-        setPosition({ x: newX, y: newY });
-    }
+    handleDragMove(e.touches[0].clientX, e.touches[0].clientY);
   };
 
-  const handleMouseUp = () => {
+  const handleDragEnd = () => {
     setIsDragging(false);
   };
-  
-  const handleTouchEnd = () => {
-    setIsDragging(false);
-  };
+
+  const handleClick = () => {
+      if (!wasDragged) {
+          onClick();
+      }
+  }
 
   useEffect(() => {
     if (isDragging) {
       window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-      window.addEventListener('touchmove', handleTouchMove);
-      window.addEventListener('touchend', handleTouchEnd);
+      window.addEventListener('mouseup', handleDragEnd);
+      window.addEventListener('touchmove', handleTouchMove, { passive: false });
+      window.addEventListener('touchend', handleDragEnd);
     } else {
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mouseup', handleDragEnd);
       window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchend', handleDragEnd);
     }
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mouseup', handleDragEnd);
       window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchend', handleDragEnd);
     };
   }, [isDragging, offset]);
 
@@ -113,6 +101,7 @@ export default function FloatingCartButton({ itemCount }: FloatingCartButtonProp
       ref={buttonRef}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
+      onClick={handleClick}
       style={{
         position: 'fixed',
         left: `${position.x}px`,
