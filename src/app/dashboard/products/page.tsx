@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { mockInventory } from "@/lib/mock-data";
 import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
+import FloatingCartButton from "@/components/floating-cart-button";
 
 export default function ProductsPage() {
     return (
@@ -39,6 +40,7 @@ export default function ProductsPage() {
                     </Card>
                 ))}
             </div>
+            <FloatingCartButton itemCount={3} />
         </div>
     );
 }
