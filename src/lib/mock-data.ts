@@ -1,47 +1,54 @@
 import type { User, Barber, Service, Appointment, InventoryItem, Feedback, Order } from './types';
 
+// En un entorno de producción, estos datos vendrían de una base de datos.
+// Para este prototipo, los definimos aquí para tener datos de inicio.
+
+// ----- USUARIOS DE EJEMPLO -----
+// Estos son los usuarios que puedes usar para iniciar sesión.
+// La contraseña para todos es "password".
 export const mockUsers: User[] = [
   {
-    id: 'user-1',
-    displayName: 'Alex Johnson',
-    documentNumber: '11111111',
-    role: 'client',
-    phone: '555-0101',
-    preferences: ['Estilos Modernos', 'Arreglos de Barba'],
+    id: 'user-superadmin',
+    displayName: 'Super Administrador',
+    documentNumber: '00000000', // Documento para iniciar sesión
+    role: 'superadmin',
+    phone: '555-0100',
     avatarUrl: 'https://placehold.co/100x100.png',
   },
   {
-    id: 'user-2',
-    displayName: 'Maria Garcia',
-    documentNumber: '22222222',
+    id: 'user-admin',
+    displayName: 'Admin Principal',
+    documentNumber: '11111111', // Documento para iniciar sesión
     role: 'admin',
+    phone: '555-0101',
+    avatarUrl: 'https://placehold.co/100x100.png',
+  },
+  {
+    id: 'user-barber',
+    displayName: 'Javier Rodriguez (Barbero)',
+    documentNumber: '22222222', // Documento para iniciar sesión
+    role: 'barber',
     phone: '555-0102',
     avatarUrl: 'https://placehold.co/100x100.png',
   },
   {
-    id: 'user-3',
-    displayName: 'Javier Rodriguez',
-    documentNumber: '33333333',
-    role: 'barber',
+    id: 'user-client',
+    displayName: 'Alex Campos (Cliente)',
+    documentNumber: '33333333', // Documento para iniciar sesión
+    role: 'client',
     phone: '555-0103',
-    avatarUrl: 'https://placehold.co/100x100.png',
-  },
-   {
-    id: 'user-4',
-    displayName: 'Super Admin',
-    documentNumber: '00000000',
-    role: 'superadmin',
-    phone: '555-0104',
+    preferences: ['Estilos Modernos', 'Arreglos de Barba'],
     avatarUrl: 'https://placehold.co/100x100.png',
   },
 ];
 
+
 export const mockBarbers: Barber[] = [
   {
     id: 'barber-1',
-    userId: 'user-3',
+    userId: 'user-barber', // Vinculado a Javier Rodriguez
     name: 'Javier "La Navaja" Rodriguez',
-    documentNumber: '33333333',
+    documentNumber: '22222222',
     phone: '555-0201',
     skills: ['Cortes Clásicos', 'Degradados (Fades)', 'Afeitados con Toalla Caliente'],
     schedule: {
@@ -58,7 +65,7 @@ export const mockBarbers: Barber[] = [
   },
   {
     id: 'barber-2',
-    userId: 'user-5', // Assuming a user-5 exists for this barber
+    userId: 'user-5', // ID de usuario de ejemplo
     name: 'Sam "El Estilista" Chen',
     documentNumber: '55555555',
     phone: '555-0202',
@@ -85,11 +92,10 @@ export const mockServices: Service[] = [
   { id: 'service-5', name: 'Corte para Niños', duration: 25, price: 28, description: "Un corte paciente y con estilo para los más pequeños." },
 ];
 
-const now = new Date();
 export const mockAppointments: Appointment[] = [
   {
     id: 'appt-1',
-    userId: 'user-1',
+    userId: 'user-client',
     barberId: 'barber-1',
     serviceIds: ['service-1', 'service-3'],
     datetime: new Date(new Date().setDate(new Date().getDate() + 2)),
@@ -97,7 +103,7 @@ export const mockAppointments: Appointment[] = [
   },
   {
     id: 'appt-2',
-    userId: 'user-1',
+    userId: 'user-client',
     barberId: 'barber-2',
     serviceIds: ['service-2'],
     datetime: new Date(new Date().setDate(new Date().getDate() - 14)),
@@ -107,7 +113,7 @@ export const mockAppointments: Appointment[] = [
   },
   {
     id: 'appt-3',
-    userId: 'user-1',
+    userId: 'user-client',
     barberId: 'barber-1',
     serviceIds: ['service-4'],
     datetime: new Date(new Date().setDate(new Date().getDate() - 30)),
@@ -117,7 +123,7 @@ export const mockAppointments: Appointment[] = [
   },
   {
     id: 'appt-4',
-    userId: 'user-2',
+    userId: 'user-admin',
     barberId: 'barber-1',
     serviceIds: ['service-4'],
     datetime: new Date(new Date().setDate(new Date().getDate() - 5)),
@@ -143,7 +149,7 @@ export const mockFeedback: Feedback[] = [
 export const mockOrders: Order[] = [
     {
         id: 'order-1',
-        userId: 'user-1',
+        userId: 'user-client',
         items: [
             { itemId: 'item-1', quantity: 1, price: 22.00 },
             { itemId: 'item-2', quantity: 1, price: 28.50 },
@@ -154,7 +160,7 @@ export const mockOrders: Order[] = [
     },
     {
         id: 'order-2',
-        userId: 'user-3', // Example with another user
+        userId: 'user-barber',
         items: [
             { itemId: 'item-4', quantity: 2, price: 24.00 },
         ],
@@ -164,7 +170,7 @@ export const mockOrders: Order[] = [
     },
     {
         id: 'order-3',
-        userId: 'user-1',
+        userId: 'user-client',
         items: [
             { itemId: 'item-3', quantity: 1, price: 18.00 },
         ],

@@ -13,10 +13,11 @@ function AdminDashboard() {
         { title: "Nuevos Clientes", value: 7, icon: Users, color: "text-purple-500" },
         { title: "Productos con Bajo Stock", value: 3, icon: Warehouse, color: "text-red-500" },
     ];
-
+    const { user } = useAuth();
     return (
         <div className="space-y-6">
-            <h1 className="text-3xl font-bold font-headline">Resumen de Administrador</h1>
+            <h1 className="text-3xl font-bold font-headline">Panel de Administrador</h1>
+            <p className="text-muted-foreground">¡Bienvenido de nuevo, {user?.displayName}!</p>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {stats.map(stat => (
                     <Card key={stat.title}>
@@ -46,9 +47,11 @@ function AdminDashboard() {
 }
 
 function SuperAdminDashboard() {
+     const { user } = useAuth();
     return (
         <div className="space-y-6">
             <h1 className="text-3xl font-bold font-headline">Panel de Super Administrador</h1>
+            <p className="text-muted-foreground">Bienvenido, {user?.displayName}. Tienes el control total del sistema.</p>
              <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -110,9 +113,10 @@ function BarberDashboard() {
 }
 
 function ClientDashboard() {
+    const { user } = useAuth();
      return (
         <div className="space-y-6">
-            <h1 className="text-3xl font-bold font-headline">¡Bienvenido de nuevo, Alex!</h1>
+            <h1 className="text-3xl font-bold font-headline">¡Bienvenido de nuevo, {user?.displayName.split(' ')[0]}!</h1>
             
             <div className="grid gap-6 md:grid-cols-2">
                 <Card className="bg-primary text-primary-foreground">

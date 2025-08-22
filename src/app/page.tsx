@@ -35,7 +35,7 @@ export default function AuthPage() {
   const router = useRouter();
   
   // Login states
-  const [documentLogin, setDocumentLogin] = useState('00000000');
+  const [documentLogin, setDocumentLogin] = useState('');
   const [passwordLogin, setPasswordLogin] = useState('password');
 
   // Signup states
@@ -105,7 +105,7 @@ export default function AuthPage() {
                   <Input 
                     id="document-login" 
                     type="text" 
-                    placeholder="12345678" 
+                    placeholder="Ej: 00000000" 
                     value={documentLogin}
                     onChange={(e) => setDocumentLogin(e.target.value)}
                   />
