@@ -1,13 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { mockFeedback, mockAppointments, mockUsers } from "@/lib/mock-data";
+import { mockFeedback, mockAppointments } from "@/lib/mock-data";
+import { getUsers } from "@/lib/user-store";
 import { Star } from "lucide-react";
 import SentimentBadge from "@/components/sentiment-badge";
 
 export default function FeedbackPage() {
     const getFeedbackDetails = (feedback: typeof mockFeedback[0]) => {
+        const allUsers = getUsers();
         const appointment = mockAppointments.find(a => a.id === feedback.appointmentId);
-        const user = mockUsers.find(u => u.id === appointment?.userId);
+        const user = allUsers.find(u => u.id === appointment?.userId);
         return { user };
     };
 

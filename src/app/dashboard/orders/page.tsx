@@ -6,7 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { mockOrders, mockUsers, mockInventory } from "@/lib/mock-data";
+import { mockOrders, mockInventory } from "@/lib/mock-data";
+import { getUsers } from '@/lib/user-store';
 import type { Order } from '@/lib/types';
 import { MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
@@ -22,7 +23,8 @@ export default function OrdersPage() {
     const { toast } = useToast();
 
     const getOrderDetails = (order: Order) => {
-        const user = mockUsers.find(u => u.id === order.userId);
+        const allUsers = getUsers();
+        const user = allUsers.find(u => u.id === order.userId);
         const itemsWithDetails = order.items.map(item => {
             const product = mockInventory.find(p => p.id === item.itemId);
             return {

@@ -1,11 +1,10 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { mockUsers } from "@/lib/mock-data";
 import { MoreHorizontal, PlusCircle, ShieldCheck } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -14,13 +13,25 @@ import EditAdminDialog from "@/components/edit-admin-dialog";
 import DeleteAdminDialog from "@/components/delete-admin-dialog";
 import type { User } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { getUsers, addUser, updateUser, deleteUser } from "@/lib/user-store";
 
 export default function AdminsPage() {
-    const [admins, setAdmins] = useState<User[]>(mockUsers.filter(user => user.role === 'admin'));
+    const [admins, setAdmins] = useState<User[]>([]);
     const [isAddAdminDialogOpen, setIsAddAdminDialogOpen] = useState(false);
     const [editingAdmin, setEditingAdmin] = useState<User | null>(null);
     const [deletingAdmin, setDeletingAdmin] = useState<User | null>(null);
     const { toast } = useToast();
+
+    useEffect(() => {
+        // Cargar administradores al montar el componente
+        const allUsers = getUsers();
+        setAdmins(allUsers.filter(user => user.role === 'admin'));
+    }, []);
+
+    const refreshAdmins = () => {
+        const allUsers = getUsers();
+        setAdmins(allUsers.filter(user => user.role === 'admin'));
+    };
 
     const handleAddAdmin = (newAdminData: Omit<User, 'id' | 'role' | 'avatarUrl'>) => {
         const newAdmin: User = {
@@ -30,9 +41,8 @@ export default function AdminsPage() {
             avatarUrl: 'https://placehold.co/100x100.png',
         };
         
-        mockUsers.push(newAdmin);
-        setAdmins(mockUsers.filter(user => user.role === 'admin'));
-
+        addUser(newAdmin);
+        refreshAdmins();
 
         toast({
             title: "Administrador Creado",
@@ -43,11 +53,8 @@ export default function AdminsPage() {
     };
 
     const handleUpdateAdmin = (updatedAdmin: User) => {
-        const adminIndex = mockUsers.findIndex(user => user.id === updatedAdmin.id);
-        if (adminIndex !== -1) {
-            mockUsers[adminIndex] = updatedAdmin;
-        }
-        setAdmins(mockUsers.filter(user => user.role === 'admin'));
+        updateUser(updatedAdmin);
+        refreshAdmins();
         toast({
             title: "Administrador Actualizado",
             description: `Los datos de ${updatedAdmin.displayName} han sido actualizados.`,
@@ -57,11 +64,10 @@ export default function AdminsPage() {
 
     const handleDeleteAdmin = () => {
         if (!deletingAdmin) return;
-        const adminIndex = mockUsers.findIndex(user => user.id === deletingAdmin.id);
-        if (adminIndex !== -1) {
-            mockUsers.splice(adminIndex, 1);
-        }
-        setAdmins(mockUsers.filter(user => user.role === 'admin'));
+        
+        deleteUser(deletingAdmin.id);
+        refreshAdmins();
+
         toast({
             title: "Administrador Eliminado",
             description: `${deletingAdmin.displayName} ha sido eliminado.`,

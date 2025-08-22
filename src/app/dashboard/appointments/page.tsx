@@ -2,7 +2,8 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { mockAppointments, mockBarbers, mockServices, mockUsers } from '@/lib/mock-data';
+import { mockAppointments, mockBarbers, mockServices } from '@/lib/mock-data';
+import { getUsers } from '@/lib/user-store';
 import type { Appointment } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -41,7 +42,8 @@ export default function AppointmentsPage() {
     }, [role, user?.id]);
 
     const getAppointmentDetails = (appt: Appointment) => {
-        const client = mockUsers.find(u => u.id === appt.userId);
+        const allUsers = getUsers();
+        const client = allUsers.find(u => u.id === appt.userId);
         const barber = mockBarbers.find(b => b.id === appt.barberId);
         const services = mockServices.filter(s => appt.serviceIds.includes(s.id));
         return { client, barber, services };

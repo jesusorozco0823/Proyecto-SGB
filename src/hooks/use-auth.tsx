@@ -1,4 +1,3 @@
-
 // In a real application, this would be a full-fledged authentication context
 // connected to Firebase Auth. For this prototype, we'll use a simplified
 // version that reads the role from localStorage.
@@ -8,7 +7,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import type { User, UserRole } from '@/lib/types';
-import { mockUsers } from '@/lib/mock-data';
+import { getUsers } from '@/lib/user-store';
 
 interface AuthContextType {
   user: User | null;
@@ -30,7 +29,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const userDocument = localStorage.getItem('userDocument');
     
     if (userDocument) {
-      const currentUser = mockUsers.find(u => u.documentNumber === userDocument) || null;
+      const users = getUsers();
+      const currentUser = users.find(u => u.documentNumber === userDocument) || null;
       setUser(currentUser);
       setRole(currentUser?.role || null);
     } else if (pathname !== '/') {

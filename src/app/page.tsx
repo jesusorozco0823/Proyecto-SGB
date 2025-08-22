@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter } from 'next/navigation';
-import { mockUsers } from '@/lib/mock-data';
+import { getUsers, addUser } from '@/lib/user-store';
 import type { User } from '@/lib/types';
 
 function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -45,7 +45,8 @@ export default function AuthPage() {
   const [passwordSignup, setPasswordSignup] = useState('');
 
   const handleAuth = (documentNumber: string) => {
-    const user = mockUsers.find(u => u.documentNumber === documentNumber);
+    const users = getUsers();
+    const user = users.find(u => u.documentNumber === documentNumber);
     if (user) {
       localStorage.setItem('userDocument', documentNumber);
       router.push('/dashboard');
@@ -73,7 +74,7 @@ export default function AuthPage() {
       avatarUrl: 'https://placehold.co/100x100.png',
     };
 
-    mockUsers.push(newUser);
+    addUser(newUser); // Guarda el nuevo usuario de forma persistente
     
     handleAuth(documentSignup);
   };
