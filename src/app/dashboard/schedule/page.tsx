@@ -52,7 +52,7 @@ export default function SchedulePage() {
 
     const handleToggleDay = (dayKey: string) => {
         if (!schedule) return;
-        const isEnabled = schedule[dayKey] !== null;
+        const isEnabled = !!schedule[dayKey];
         const newSchedule = { ...schedule };
 
         if (isEnabled) {
@@ -65,9 +65,14 @@ export default function SchedulePage() {
 
     const handleTimeChange = (dayKey: string, type: 'start' | 'end', value: string) => {
         if (!schedule || !schedule[dayKey]) return;
+        
         const newSchedule = { ...schedule };
-        newSchedule[dayKey] = { ...newSchedule[dayKey]!, [type]: value };
-        setSchedule(newSchedule);
+        const daySchedule = newSchedule[dayKey];
+
+        if (daySchedule) {
+            newSchedule[dayKey] = { ...daySchedule, [type]: value };
+            setSchedule(newSchedule);
+        }
     };
 
     const handleSaveChanges = () => {
