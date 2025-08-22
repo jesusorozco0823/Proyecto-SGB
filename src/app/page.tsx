@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter } from 'next/navigation';
 import { getUsers, addUser } from '@/lib/user-store';
 import type { User } from '@/lib/types';
+import { Loader2 } from 'lucide-react';
 
 function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -33,6 +34,7 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
 
 export default function AuthPage() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   
   // Login states
   const [documentLogin, setDocumentLogin] = useState('');
@@ -45,45 +47,51 @@ export default function AuthPage() {
   const [passwordSignup, setPasswordSignup] = useState('');
 
   const handleAuth = (documentNumber: string) => {
-    const users = getUsers();
-    const user = users.find(u => u.documentNumber === documentNumber);
-    if (user) {
-      localStorage.setItem('userDocument', documentNumber);
-      router.push('/dashboard');
-    } else {
-      alert("Usuario no encontrado.");
-    }
-  };
-
-  const handleUnifiedLogin = () => {
-     handleAuth(documentLogin);
+    setIsLoading(true);
+    // Simular una llamada a la API
+    setTimeout(() => {
+        const users = getUsers();
+        const user = users.find(u => u.documentNumber === documentNumber);
+        
+        if (user) {
+            localStorage.setItem('userDocument', documentNumber);
+            router.push('/dashboard');
+        } else {
+            alert("Usuario no encontrado o contraseña incorrecta.");
+            setIsLoading(false);
+        }
+    }, 1000);
   };
 
   const handleRegistration = () => {
+    setIsLoading(true);
     if (!nameSignup || !documentSignup || !phoneSignup || !passwordSignup) {
       alert("Por favor, completa todos los campos.");
+      setIsLoading(false);
       return;
     }
 
-    const newUser: User = {
-      id: `user-${Date.now()}`,
-      displayName: nameSignup,
-      documentNumber: documentSignup,
-      phone: phoneSignup,
-      role: 'client',
-      avatarUrl: 'https://placehold.co/100x100.png',
-    };
+    // Simular una llamada a la API
+    setTimeout(() => {
+        const newUser: User = {
+        id: `user-${Date.now()}`,
+        displayName: nameSignup,
+        documentNumber: documentSignup,
+        phone: phoneSignup,
+        role: 'client',
+        avatarUrl: 'https://placehold.co/100x100.png',
+        };
 
-    addUser(newUser); // Guarda el nuevo usuario de forma persistente
-    
-    handleAuth(documentSignup);
+        addUser(newUser);
+        handleAuth(documentSignup);
+    }, 1000);
   };
   
   return (
     <div className="flex items-center justify-center min-h-screen bg-background p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-            <h1 className="text-4xl font-headline font-bold text-primary">Sistema de Gestión de Barberías</h1>
+            <h1 className="text-4xl font-headline font-bold text-primary">SalonFlow</h1>
             <p className="text-muted-foreground mt-2">El sistema de gestión premier para barberías modernas.</p>
         </div>
         <Tabs defaultValue="login" className="w-full">
@@ -108,6 +116,7 @@ export default function AuthPage() {
                     placeholder="Ej: 00000000" 
                     value={documentLogin}
                     onChange={(e) => setDocumentLogin(e.target.value)}
+                    disabled={isLoading}
                   />
                 </div>
                 <div className="space-y-2">
@@ -117,13 +126,17 @@ export default function AuthPage() {
                     type="password" 
                     value={passwordLogin}
                     onChange={(e) => setPasswordLogin(e.target.value)}
+                    disabled={isLoading}
                   />
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
-                 <Button onClick={handleUnifiedLogin} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">Ingresar</Button>
+                 <Button onClick={() => handleAuth(documentLogin)} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={isLoading}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Ingresar
+                 </Button>
                  <p className="text-xs text-muted-foreground text-center">O</p>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" disabled={isLoading}>
                   <GoogleIcon className="mr-2 h-4 w-4" />
                   Iniciar sesión con Google
                 </Button>
@@ -146,6 +159,7 @@ export default function AuthPage() {
                     placeholder="John Doe" 
                     value={nameSignup}
                     onChange={(e) => setNameSignup(e.target.value)}
+                    disabled={isLoading}
                   />
                 </div>
                 <div className="space-y-2">
@@ -156,6 +170,7 @@ export default function AuthPage() {
                     placeholder="12345678" 
                     value={documentSignup}
                     onChange={(e) => setDocumentSignup(e.target.value)}
+                    disabled={isLoading}
                   />
                 </div>
                  <div className="space-y-2">
@@ -166,6 +181,7 @@ export default function AuthPage() {
                     placeholder="3001234567" 
                     value={phoneSignup}
                     onChange={(e) => setPhoneSignup(e.target.value)}
+                    disabled={isLoading}
                   />
                 </div>
                 <div className="space-y-2">
@@ -175,13 +191,17 @@ export default function AuthPage() {
                     type="password"
                     value={passwordSignup}
                     onChange={(e) => setPasswordSignup(e.target.value)}
+                    disabled={isLoading}
                   />
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
-                <Button onClick={handleRegistration} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">Crear Cuenta</Button>
+                <Button onClick={handleRegistration} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={isLoading}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Crear Cuenta
+                </Button>
                  <p className="text-xs text-muted-foreground text-center">O</p>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" disabled={isLoading}>
                   <GoogleIcon className="mr-2 h-4 w-4" />
                   Registrarse con Google
                 </Button>

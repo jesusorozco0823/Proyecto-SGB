@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { Barber } from '@/lib/types';
 import { Textarea } from './ui/textarea';
+import { Loader2 } from 'lucide-react';
 
 interface EditBarberDialogProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export default function EditBarberDialog({ isOpen, onOpenChange, onUpdateBarber,
   const [phone, setPhone] = useState('');
   const [skills, setSkills] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (barber) {
@@ -40,14 +42,19 @@ export default function EditBarberDialog({ isOpen, onOpenChange, onUpdateBarber,
         return;
     }
     
-    onUpdateBarber({ 
-        ...barber,
-        name,
-        documentNumber,
-        phone,
-        skills: skills.split(',').map(skill => skill.trim()),
-        imageUrl: imageUrl || 'https://placehold.co/400x400.png'
-    });
+    setIsLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+        onUpdateBarber({ 
+            ...barber,
+            name,
+            documentNumber,
+            phone,
+            skills: skills.split(',').map(skill => skill.trim()),
+            imageUrl: imageUrl || 'https://placehold.co/400x400.png'
+        });
+        setIsLoading(false);
+    }, 1000);
   };
 
   return (
@@ -63,28 +70,31 @@ export default function EditBarberDialog({ isOpen, onOpenChange, onUpdateBarber,
             <div className="grid gap-4 py-4">
                  <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="barber-name-edit" className="text-right">Nombre</Label>
-                    <Input id="barber-name-edit" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3" required />
+                    <Input id="barber-name-edit" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3" required disabled={isLoading} />
                 </div>
                  <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="barber-doc-edit" className="text-right">Documento</Label>
-                    <Input id="barber-doc-edit" value={documentNumber} onChange={(e) => setDocumentNumber(e.target.value)} className="col-span-3" required />
+                    <Input id="barber-doc-edit" value={documentNumber} onChange={(e) => setDocumentNumber(e.target.value)} className="col-span-3" required disabled={isLoading} />
                 </div>
                  <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="barber-phone-edit" className="text-right">Celular</Label>
-                    <Input id="barber-phone-edit" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="col-span-3" required />
+                    <Input id="barber-phone-edit" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="col-span-3" required disabled={isLoading} />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="barber-skills-edit" className="text-right">Habilidades</Label>
-                    <Textarea id="barber-skills-edit" value={skills} onChange={(e) => setSkills(e.target.value)} className="col-span-3" required />
+                    <Textarea id="barber-skills-edit" value={skills} onChange={(e) => setSkills(e.target.value)} className="col-span-3" required disabled={isLoading} />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="barber-image-edit" className="text-right">URL de Imagen</Label>
-                    <Input id="barber-image-edit" type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="col-span-3" />
+                    <Input id="barber-image-edit" type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="col-span-3" disabled={isLoading} />
                 </div>
             </div>
             <DialogFooter>
-                <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>Cancelar</Button>
-                <Button type="submit">Guardar Cambios</Button>
+                <Button variant="outline" type="button" onClick={() => onOpenChange(false)} disabled={isLoading}>Cancelar</Button>
+                <Button type="submit" disabled={isLoading}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Guardar Cambios
+                </Button>
             </DialogFooter>
         </form>
       </DialogContent>

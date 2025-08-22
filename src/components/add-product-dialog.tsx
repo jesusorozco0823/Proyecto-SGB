@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { InventoryItem } from '@/lib/types';
+import { Loader2 } from 'lucide-react';
 
 interface AddProductDialogProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export default function AddProductDialog({ isOpen, onOpenChange, onAddProduct }:
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,20 +30,25 @@ export default function AddProductDialog({ isOpen, onOpenChange, onAddProduct }:
         return;
     }
     
-    onAddProduct({
-        name,
-        sku,
-        price: parseFloat(price),
-        stock: parseInt(stock, 10),
-        imageUrl: imageUrl,
-    });
+    setIsLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+        onAddProduct({
+            name,
+            sku,
+            price: parseFloat(price),
+            stock: parseInt(stock, 10),
+            imageUrl: imageUrl,
+        });
 
-    // Reset form
-    setName('');
-    setSku('');
-    setPrice('');
-    setStock('');
-    setImageUrl('');
+        // Reset form
+        setName('');
+        setSku('');
+        setPrice('');
+        setStock('');
+        setImageUrl('');
+        setIsLoading(false);
+    }, 1000);
   };
 
   return (
@@ -57,28 +64,31 @@ export default function AddProductDialog({ isOpen, onOpenChange, onAddProduct }:
             <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="prod-name" className="text-right">Nombre</Label>
-                    <Input id="prod-name" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3" required />
+                    <Input id="prod-name" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3" required disabled={isLoading} />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="prod-sku" className="text-right">SKU</Label>
-                    <Input id="prod-sku" value={sku} onChange={(e) => setSku(e.target.value)} className="col-span-3" required />
+                    <Input id="prod-sku" value={sku} onChange={(e) => setSku(e.target.value)} className="col-span-3" required disabled={isLoading} />
                 </div>
                  <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="prod-price" className="text-right">Precio</Label>
-                    <Input id="prod-price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="col-span-3" required />
+                    <Input id="prod-price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="col-span-3" required disabled={isLoading} />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="prod-stock" className="text-right">Stock</Label>
-                    <Input id="prod-stock" type="number" value={stock} onChange={(e) => setStock(e.target.value)} className="col-span-3" required />
+                    <Input id="prod-stock" type="number" value={stock} onChange={(e) => setStock(e.target.value)} className="col-span-3" required disabled={isLoading} />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="prod-image" className="text-right">URL Imagen</Label>
-                    <Input id="prod-image" type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="col-span-3" placeholder="Opcional" />
+                    <Input id="prod-image" type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="col-span-3" placeholder="Opcional" disabled={isLoading} />
                 </div>
             </div>
             <DialogFooter>
-                <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>Cancelar</Button>
-                <Button type="submit">Añadir Producto</Button>
+                <Button variant="outline" type="button" onClick={() => onOpenChange(false)} disabled={isLoading}>Cancelar</Button>
+                <Button type="submit" disabled={isLoading}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Añadir Producto
+                </Button>
             </DialogFooter>
         </form>
       </DialogContent>

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { InventoryItem } from '@/lib/types';
+import { Loader2 } from 'lucide-react';
 
 interface EditProductDialogProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export default function EditProductDialog({ isOpen, onOpenChange, onUpdateProduc
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (product) {
@@ -39,14 +41,19 @@ export default function EditProductDialog({ isOpen, onOpenChange, onUpdateProduc
         return;
     }
     
-    onUpdateProduct({ 
-        ...product,
-        name,
-        sku,
-        price: parseFloat(price),
-        stock: parseInt(stock, 10),
-        imageUrl: imageUrl || 'https://placehold.co/200x200.png',
-    });
+    setIsLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+        onUpdateProduct({ 
+            ...product,
+            name,
+            sku,
+            price: parseFloat(price),
+            stock: parseInt(stock, 10),
+            imageUrl: imageUrl || 'https://placehold.co/200x200.png',
+        });
+        setIsLoading(false);
+    }, 1000);
   };
 
   return (
@@ -62,28 +69,31 @@ export default function EditProductDialog({ isOpen, onOpenChange, onUpdateProduc
             <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="prod-name-edit" className="text-right">Nombre</Label>
-                    <Input id="prod-name-edit" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3" required />
+                    <Input id="prod-name-edit" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3" required disabled={isLoading} />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="prod-sku-edit" className="text-right">SKU</Label>
-                    <Input id="prod-sku-edit" value={sku} onChange={(e) => setSku(e.target.value)} className="col-span-3" required />
+                    <Input id="prod-sku-edit" value={sku} onChange={(e) => setSku(e.target.value)} className="col-span-3" required disabled={isLoading} />
                 </div>
                  <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="prod-price-edit" className="text-right">Precio</Label>
-                    <Input id="prod-price-edit" type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="col-span-3" required />
+                    <Input id="prod-price-edit" type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="col-span-3" required disabled={isLoading} />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="prod-stock-edit" className="text-right">Stock</Label>
-                    <Input id="prod-stock-edit" type="number" value={stock} onChange={(e) => setStock(e.target.value)} className="col-span-3" required />
+                    <Input id="prod-stock-edit" type="number" value={stock} onChange={(e) => setStock(e.target.value)} className="col-span-3" required disabled={isLoading} />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="prod-image-edit" className="text-right">URL Imagen</Label>
-                    <Input id="prod-image-edit" type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="col-span-3" placeholder="Opcional" />
+                    <Input id="prod-image-edit" type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="col-span-3" placeholder="Opcional" disabled={isLoading} />
                 </div>
             </div>
             <DialogFooter>
-                <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>Cancelar</Button>
-                <Button type="submit">Guardar Cambios</Button>
+                <Button variant="outline" type="button" onClick={() => onOpenChange(false)} disabled={isLoading}>Cancelar</Button>
+                <Button type="submit" disabled={isLoading}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Guardar Cambios
+                </Button>
             </DialogFooter>
         </form>
       </DialogContent>

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { User } from '@/lib/types';
+import { Loader2 } from 'lucide-react';
 
 interface EditAdminDialogProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ export default function EditAdminDialog({ isOpen, onOpenChange, onUpdateAdmin, a
   const [displayName, setDisplayName] = useState('');
   const [documentNumber, setDocumentNumber] = useState('');
   const [phone, setPhone] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (admin) {
@@ -35,12 +37,17 @@ export default function EditAdminDialog({ isOpen, onOpenChange, onUpdateAdmin, a
         return;
     }
     
-    onUpdateAdmin({ 
-        ...admin,
-        displayName,
-        documentNumber,
-        phone,
-    });
+    setIsLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+        onUpdateAdmin({ 
+            ...admin,
+            displayName,
+            documentNumber,
+            phone,
+        });
+        setIsLoading(false);
+    }, 1000);
   };
   
   const handleClose = () => {
@@ -60,20 +67,23 @@ export default function EditAdminDialog({ isOpen, onOpenChange, onUpdateAdmin, a
             <div className="space-y-4 py-4">
                 <div className="space-y-2">
                     <Label htmlFor="admin-name-edit">Nombre Completo</Label>
-                    <Input id="admin-name-edit" value={displayName} onChange={(e) => setDisplayName(e.target.value)} required />
+                    <Input id="admin-name-edit" value={displayName} onChange={(e) => setDisplayName(e.target.value)} required disabled={isLoading} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="admin-doc-edit">Número de Documento</Label>
-                    <Input id="admin-doc-edit" value={documentNumber} onChange={(e) => setDocumentNumber(e.target.value)} required />
+                    <Input id="admin-doc-edit" value={documentNumber} onChange={(e) => setDocumentNumber(e.target.value)} required disabled={isLoading} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="admin-phone-edit">Teléfono</Label>
-                    <Input id="admin-phone-edit" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+                    <Input id="admin-phone-edit" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required disabled={isLoading} />
                 </div>
             </div>
             <DialogFooter>
-            <Button variant="outline" type="button" onClick={handleClose}>Cancelar</Button>
-            <Button type="submit">Guardar Cambios</Button>
+            <Button variant="outline" type="button" onClick={handleClose} disabled={isLoading}>Cancelar</Button>
+            <Button type="submit" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Guardar Cambios
+            </Button>
             </DialogFooter>
         </form>
       </DialogContent>

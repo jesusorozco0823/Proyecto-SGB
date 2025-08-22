@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar } from '@/components/ui/calendar';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Check, ChevronRight, User, Scissors, Calendar as CalendarIcon, Clock } from 'lucide-react';
+import { Check, ChevronRight, User, Scissors, Calendar as CalendarIcon, Clock, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -24,6 +24,7 @@ export default function BookingPage() {
   const [selectedBarber, setSelectedBarber] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const handleServiceToggle = (serviceId: string) => {
@@ -46,6 +47,7 @@ export default function BookingPage() {
     if (!barber) return [];
 
     const dayOfWeek = dayOfWeekMap[selectedDate.getDay()];
+    // @ts-ignore
     const daySchedule = barber.schedule[dayOfWeek];
 
     if (!daySchedule) return []; // Barber doesn't work this day
@@ -74,16 +76,21 @@ export default function BookingPage() {
   }, 0);
   
   const handleBooking = () => {
-    toast({
-        title: "¡Cita Reservada!",
-        description: "Tu cita ha sido programada exitosamente. ¡Nos vemos pronto!",
-    });
-    // Reset state
-    setStep('service');
-    setSelectedServices([]);
-    setSelectedBarber(null);
-    setSelectedDate(new Date());
-    setSelectedTime(null);
+    setIsLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+      toast({
+          title: "¡Cita Reservada!",
+          description: "Tu cita ha sido programada exitosamente. ¡Nos vemos pronto!",
+      });
+      // Reset state
+      setStep('service');
+      setSelectedServices([]);
+      setSelectedBarber(null);
+      setSelectedDate(new Date());
+      setSelectedTime(null);
+      setIsLoading(false);
+    }, 1500);
   }
 
   const renderStepContent = () => {
@@ -232,11 +239,14 @@ export default function BookingPage() {
             </div>
              <div className="flex items-center gap-2">
              {step !== 'service' && (
-                <Button variant="outline" onClick={() => setStep(STEPS[currentStepIndex-1].id)}>Atrás</Button>
+                <Button variant="outline" onClick={() => setStep(STEPS[currentStepIndex-1].id)} disabled={isLoading}>Atrás</Button>
             )}
 
             {step === 'confirm' ? (
-                <Button onClick={handleBooking}>Confirmar Reserva</Button>
+                <Button onClick={handleBooking} disabled={isLoading}>
+                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Confirmar Reserva
+                </Button>
             ) : (
                 <Button onClick={() => setStep(STEPS[currentStepIndex+1].id)} disabled={
                     (step === 'service' && selectedServices.length === 0) ||

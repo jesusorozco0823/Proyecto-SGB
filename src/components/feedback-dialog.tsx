@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Star, Wand2 } from 'lucide-react';
+import { Star, Wand2, Loader2 } from 'lucide-react';
 import type { Appointment } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -27,6 +27,7 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
   const [comment, setComment] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const appointmentServices = useMemo(() => 
@@ -77,11 +78,12 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
   }, [isOpen]);
 
   const handleSubmit = () => {
-    toast({
-        title: "¡Gracias por tu opinión!",
-        description: "Tus comentarios nos ayudan a mejorar.",
-    })
-    onSubmit(rating, comment);
+    setIsSubmitting(true);
+    // Simulate API call
+    setTimeout(() => {
+        onSubmit(rating, comment);
+        setIsSubmitting(false);
+    }, 1000);
   };
 
   return (
@@ -104,10 +106,11 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
                     "h-8 w-8 cursor-pointer transition-colors",
                     (hoverRating >= star || rating >= star)
                       ? "text-yellow-400 fill-yellow-400"
-                      : "text-muted-foreground"
+                      : "text-muted-foreground",
+                    isSubmitting && "pointer-events-none opacity-50"
                   )}
-                  onClick={() => setRating(star)}
-                  onMouseEnter={() => setHoverRating(star)}
+                  onClick={() => !isSubmitting && setRating(star)}
+                  onMouseEnter={() => !isSubmitting && setHoverRating(star)}
                   onMouseLeave={() => setHoverRating(0)}
                 />
               ))}
@@ -121,6 +124,7 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={4}
+              disabled={isSubmitting}
             />
           </div>
           {(loadingSuggestions || suggestions.length > 0) && (
@@ -143,6 +147,7 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
                                 size="sm"
                                 onClick={() => setComment(suggestion)}
                                 className="h-auto text-wrap text-left"
+                                disabled={isSubmitting}
                             >
                                 {suggestion}
                             </Button>
@@ -153,8 +158,11 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
           )}
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
-          <Button onClick={handleSubmit} disabled={rating === 0 || comment.trim() === ''}>Enviar Opinión</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>Cancelar</Button>
+          <Button onClick={handleSubmit} disabled={rating === 0 || comment.trim() === '' || isSubmitting}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Enviar Opinión
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Wand2 } from 'lucide-react';
+import { Wand2, Loader2 } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 import { suggestCancellationReasons } from '@/ai/flows/suggest-cancellation-reasons';
 
@@ -20,6 +20,7 @@ export default function CancelAppointmentDialog({ isOpen, onOpenChange, onSubmit
   const [reason, setReason] = useState('');
   const [suggestedReasons, setSuggestedReasons] = useState<string[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -46,7 +47,12 @@ export default function CancelAppointmentDialog({ isOpen, onOpenChange, onSubmit
 
   const handleSubmit = () => {
     if (reason.trim()) {
-      onSubmit(reason);
+      setIsSubmitting(true);
+      // Simulate API call
+      setTimeout(() => {
+        onSubmit(reason);
+        setIsSubmitting(false);
+      }, 1000);
     }
   };
 
@@ -68,6 +74,7 @@ export default function CancelAppointmentDialog({ isOpen, onOpenChange, onSubmit
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={3}
+              disabled={isSubmitting}
             />
           </div>
 
@@ -90,6 +97,7 @@ export default function CancelAppointmentDialog({ isOpen, onOpenChange, onSubmit
                     variant="outline"
                     size="sm"
                     onClick={() => setReason(suggestion)}
+                    disabled={isSubmitting}
                   >
                     {suggestion}
                   </Button>
@@ -99,8 +107,11 @@ export default function CancelAppointmentDialog({ isOpen, onOpenChange, onSubmit
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>No, mantener cita</Button>
-          <Button variant="destructive" onClick={handleSubmit} disabled={!reason.trim()}>Sí, Cancelar Cita</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>No, mantener cita</Button>
+          <Button variant="destructive" onClick={handleSubmit} disabled={!reason.trim() || isSubmitting}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Sí, Cancelar Cita
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

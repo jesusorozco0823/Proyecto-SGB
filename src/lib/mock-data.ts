@@ -9,7 +9,7 @@ import type { User, Barber, Service, Appointment, InventoryItem, Feedback, Order
 export const mockUsers: User[] = [
   {
     id: 'user-superadmin',
-    displayName: 'Super Administrador',
+    displayName: 'Super Administrador Jesus',
     documentNumber: '00000000', // Documento para iniciar sesión
     role: 'superadmin',
     phone: '555-0100',
@@ -17,7 +17,7 @@ export const mockUsers: User[] = [
   },
   {
     id: 'user-admin',
-    displayName: 'Admin Principal',
+    displayName: 'Admin Principal Jhon',
     documentNumber: '11111111', // Documento para iniciar sesión
     role: 'admin',
     phone: '555-0101',
