@@ -1,22 +1,29 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { mockInventory } from "@/lib/mock-data";
 import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import FloatingCartButton from "@/components/floating-cart-button";
 import CartSheet from '@/components/cart-sheet';
 import type { InventoryItem } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { apiClient } from '@/lib/api-client';
+import { formatCop } from '@/lib/money';
 
 export type CartItem = InventoryItem & { quantity: number };
 
 export default function ProductsPage() {
+    const [products, setProducts] = useState<InventoryItem[]>([]);
     const [cart, setCart] = useState<CartItem[]>([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const [checkingOut, setCheckingOut] = useState(false);
     const { toast } = useToast();
+
+    useEffect(() => {
+        apiClient.get<InventoryItem[]>('/api/v1/inventory').then(setProducts).catch(() => setProducts([]));
+    }, []);
 
     const handleAddToCart = (item: InventoryItem) => {
         setCart(prevCart => {
@@ -24,7 +31,7 @@ export default function ProductsPage() {
             if (existingItem) {
                 return prevCart.map(cartItem =>
                     cartItem.id === item.id
-                        ? { ...cartItem, quantity: cartItem.quantity + 1 }
+                        ? { ...cartItem, quantity: Math.min(5, cartItem.quantity + 1) }
                         : cartItem
                 );
             }
@@ -41,10 +48,32 @@ export default function ProductsPage() {
             if (newQuantity <= 0) {
                 return prevCart.filter(item => item.id !== itemId);
             }
+            if (newQuantity > 5) return prevCart;
             return prevCart.map(item =>
                 item.id === itemId ? { ...item, quantity: newQuantity } : item
             );
         });
+    };
+
+    const handleCheckout = async () => {
+        setCheckingOut(true);
+        try {
+            await apiClient.post('/api/v1/orders', {
+                items: cart.map((item) => ({ itemId: item.id, quantity: item.quantity })),
+            });
+            setCart([]);
+            setIsCartOpen(false);
+            toast({ title: 'Pedido creado', description: 'Quedó pendiente de pago. El salón confirma el pago para despacharlo.' });
+            setProducts(await apiClient.get<InventoryItem[]>('/api/v1/inventory'));
+        } catch (error) {
+            toast({
+                title: 'No se pudo crear el pedido',
+                description: error instanceof Error ? error.message : 'Inténtalo de nuevo.',
+                variant: 'destructive',
+            });
+        } finally {
+            setCheckingOut(false);
+        }
     };
 
     const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
@@ -57,7 +86,7 @@ export default function ProductsPage() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {mockInventory.map((item) => (
+                {products.map((item) => (
                     <Card key={item.id} className="overflow-hidden flex flex-col">
                         <div className="relative h-56 w-full">
                             <Image
@@ -72,7 +101,8 @@ export default function ProductsPage() {
                             <CardTitle>{item.name}</CardTitle>
                         </CardHeader>
                         <CardContent className="flex-grow">
-                             <p className="text-2xl font-semibold">${item.price.toFixed(2)}</p>
+                             <p className="text-2xl font-semibold">{formatCop(item.price)}</p>
+                             <p className="text-sm text-muted-foreground">{item.availability === 'ultimas' ? 'Últimas unidades' : item.availability === 'agotado' ? 'Agotado' : 'Disponible'}</p>
                         </CardContent>
                         <CardFooter>
                              <Button className="w-full" onClick={() => handleAddToCart(item)}>
@@ -94,6 +124,8 @@ export default function ProductsPage() {
                 onOpenChange={setIsCartOpen}
                 cartItems={cart}
                 onUpdateQuantity={handleUpdateQuantity}
+                onCheckout={handleCheckout}
+                checkingOut={checkingOut}
             />
         </div>
     );

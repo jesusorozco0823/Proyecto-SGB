@@ -1,46 +1,56 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { mockInventory } from "@/lib/mock-data";
 import { MoreHorizontal, PlusCircle } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import Image from "next/image";
 import type { InventoryItem } from '@/lib/types';
+import { formatCop } from '@/lib/money';
 import AddProductDialog from '@/components/add-product-dialog';
 import EditProductDialog from '@/components/edit-product-dialog';
 import DeleteProductDialog from '@/components/delete-product-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { apiClient } from '@/lib/api-client';
 
 export default function InventoryPage() {
-  const [inventory, setInventory] = useState<InventoryItem[]>(mockInventory);
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<InventoryItem | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<InventoryItem | null>(null);
   const { toast } = useToast();
 
-  const handleAddProduct = (newProductData: Omit<InventoryItem, 'id'>) => {
-    const newProduct: InventoryItem = {
-      id: `item-${Date.now()}`,
-      ...newProductData,
-      imageUrl: newProductData.imageUrl || 'https://placehold.co/200x200.png',
-    };
-    setInventory(prev => [...prev, newProduct]);
+  const loadInventory = async () => {
+    setInventory(await apiClient.get<InventoryItem[]>('/api/v1/inventory'));
+  };
+
+  useEffect(() => {
+    void loadInventory();
+  }, []);
+
+  const handleAddProduct = async (newProductData: Omit<InventoryItem, 'id'>) => {
+    await apiClient.post('/api/v1/inventory', newProductData);
+    await loadInventory();
     toast({
       title: "Producto Añadido",
-      description: `${newProduct.name} ha sido añadido al inventario.`,
+      description: `${newProductData.name} ha sido añadido al inventario.`,
     });
     setIsAddDialogOpen(false);
   };
 
-  const handleUpdateProduct = (updatedProduct: InventoryItem) => {
-    setInventory(prev => 
-      prev.map(item => item.id === updatedProduct.id ? updatedProduct : item)
-    );
+  const handleUpdateProduct = async (updatedProduct: InventoryItem) => {
+    await apiClient.patch(`/api/v1/inventory/${updatedProduct.id}`, {
+      name: updatedProduct.name,
+      sku: updatedProduct.sku,
+      price: updatedProduct.price,
+      stock: updatedProduct.stock,
+      imageUrl: updatedProduct.imageUrl,
+    });
+    await loadInventory();
     toast({
       title: "Producto Actualizado",
       description: `Los datos de ${updatedProduct.name} han sido actualizados.`,
@@ -48,15 +58,24 @@ export default function InventoryPage() {
     setEditingProduct(null);
   };
 
-  const handleDeleteProduct = () => {
+  const handleDeleteProduct = async () => {
     if (!deletingProduct) return;
-    setInventory(prev => prev.filter(item => item.id !== deletingProduct.id));
-    toast({
-      title: "Producto Eliminado",
-      description: `${deletingProduct.name} ha sido eliminado del inventario.`,
-      variant: "destructive",
-    });
-    setDeletingProduct(null);
+    try {
+      await apiClient.delete(`/api/v1/inventory/${deletingProduct.id}`);
+      await loadInventory();
+      toast({
+        title: "Producto Eliminado",
+        description: `${deletingProduct.name} ha sido eliminado del inventario.`,
+        variant: "destructive",
+      });
+      setDeletingProduct(null);
+    } catch (error) {
+      toast({
+        title: "No se pudo eliminar",
+        description: error instanceof Error ? error.message : "Inténtalo de nuevo.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -104,10 +123,10 @@ export default function InventoryPage() {
                     </TableCell>
                     <TableCell className="font-medium">{item.name}</TableCell>
                     <TableCell>{item.sku}</TableCell>
-                    <TableCell className="hidden md:table-cell">${item.price.toFixed(2)}</TableCell>
+                    <TableCell className="hidden md:table-cell">{formatCop(item.price)}</TableCell>
                     <TableCell>
-                      <Badge variant={item.stock < 20 ? "destructive" : "outline"}>
-                          {item.stock}
+                      <Badge variant={(item.stock ?? 0) < 20 ? "destructive" : "outline"}>
+                          {item.stock ?? 0}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -142,7 +161,7 @@ export default function InventoryPage() {
       {editingProduct && (
         <EditProductDialog
           isOpen={!!editingProduct}
-          onOpenChange={setEditingProduct}
+          onOpenChange={() => setEditingProduct(null)}
           onUpdateProduct={handleUpdateProduct}
           product={editingProduct}
         />
@@ -151,7 +170,7 @@ export default function InventoryPage() {
       {deletingProduct && (
         <DeleteProductDialog
           isOpen={!!deletingProduct}
-          onOpenChange={setDeletingProduct}
+          onOpenChange={() => setDeletingProduct(null)}
           onConfirmDelete={handleDeleteProduct}
           itemName={deletingProduct.name}
         />

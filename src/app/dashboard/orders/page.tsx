@@ -1,13 +1,13 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { mockOrders, mockInventory } from "@/lib/mock-data";
-import { getUsers } from '@/lib/user-store';
+import { apiClient } from '@/lib/api-client';
+import { formatCop } from '@/lib/money';
 import type { Order } from '@/lib/types';
 import { MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
@@ -16,36 +16,55 @@ import { es } from "date-fns/locale";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import OrderDetailsDialog from '@/components/order-details-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
+import { openReceipt } from '@/lib/receipt';
 
 export default function OrdersPage() {
-    const [orders, setOrders] = useState<Order[]>(mockOrders);
+    const { role } = useAuth();
+    const [orders, setOrders] = useState<Order[]>([]);
     const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
     const { toast } = useToast();
 
-    const getOrderDetails = (order: Order) => {
-        const allUsers = getUsers();
-        const user = allUsers.find(u => u.id === order.userId);
-        const itemsWithDetails = order.items.map(item => {
-            const product = mockInventory.find(p => p.id === item.itemId);
-            return {
-                ...item,
-                name: product?.name || 'Producto Desconocido',
-                imageUrl: product?.imageUrl || 'https://placehold.co/100x100.png',
-            }
-        });
-        return { user, itemsWithDetails };
-    };
+    useEffect(() => {
+        apiClient.get<Order[]>('/api/v1/orders')
+            .then((rows) => setOrders(rows.map((row) => ({ ...row, createdAt: new Date(row.createdAt) }))))
+            .catch((error) => {
+                toast({
+                    title: 'No se pudieron cargar los pedidos',
+                    description: error instanceof Error ? error.message : 'Inténtalo de nuevo.',
+                    variant: 'destructive',
+                });
+            });
+    }, [toast]);
 
-    const handleStatusChange = (orderId: string, newStatus: Order['status']) => {
-        setOrders(prevOrders => 
-            prevOrders.map(order => 
-                order.id === orderId ? { ...order, status: newStatus } : order
-            )
-        );
-        toast({
-            title: "Estado del Pedido Actualizado",
-            description: `El pedido #${orderId.slice(-4)} ahora está ${getStatusText(newStatus)}.`,
-        });
+    const getOrderDetails = (order: Order) => ({
+        user: order.user,
+        itemsWithDetails: order.items.map(item => ({
+            ...item,
+            name: item.name || 'Producto Desconocido',
+            imageUrl: item.imageUrl || 'https://placehold.co/100x100.png',
+        })),
+    });
+
+    const handleStatusChange = async (orderId: string, newStatus: Order['status']) => {
+        try {
+            const updated = await apiClient.patch<Order>(`/api/v1/orders/${orderId}/status`, { status: newStatus });
+            setOrders(prevOrders =>
+                prevOrders.map(order =>
+                    order.id === orderId ? { ...updated, createdAt: new Date(updated.createdAt) } : order
+                )
+            );
+            toast({
+                title: "Estado del Pedido Actualizado",
+                description: `El pedido #${orderId.slice(-4)} ahora está ${getStatusText(newStatus)}.`,
+            });
+        } catch (error) {
+            toast({
+                title: 'No se pudo actualizar el pedido',
+                description: error instanceof Error ? error.message : 'Inténtalo de nuevo.',
+                variant: 'destructive',
+            });
+        }
     };
 
     const getStatusVariant = (status: 'pending' | 'shipped' | 'delivered' | 'cancelled') => {
@@ -95,7 +114,7 @@ export default function OrdersPage() {
                                         <TableRow key={order.id}>
                                             <TableCell className="font-medium">{user?.displayName || 'Usuario Desconocido'}</TableCell>
                                             <TableCell>{format(order.createdAt, "d 'de' MMMM, yyyy", { locale: es })}</TableCell>
-                                            <TableCell className="hidden md:table-cell">${order.total.toFixed(2)}</TableCell>
+                                            <TableCell className="hidden md:table-cell">{formatCop(order.total)}</TableCell>
                                             <TableCell>
                                                 <Badge variant={getStatusVariant(order.status)}>
                                                     {getStatusText(order.status)}
@@ -112,6 +131,8 @@ export default function OrdersPage() {
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                                                         <DropdownMenuItem onClick={() => setViewingOrder(order)}>Ver Detalles del Pedido</DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => openReceipt(`/api/v1/orders/${order.id}/receipt`).catch((error) => toast({ title: 'No se pudo abrir el comprobante', description: error instanceof Error ? error.message : 'Inténtalo de nuevo.', variant: 'destructive' }))}>Comprobante</DropdownMenuItem>
+                                                        {role === 'admin' && order.paymentStatus !== 'paid' && order.status !== 'cancelled' && <DropdownMenuItem onClick={() => apiClient.post(`/api/v1/orders/${order.id}/payment`).then(() => { setOrders((prev) => prev.map((item) => item.id === order.id ? { ...item, paymentStatus: 'paid' } : item)); toast({ title: 'Pago confirmado' }); }).catch((error) => toast({ title: 'No se pudo confirmar el pago', description: error instanceof Error ? error.message : 'Inténtalo de nuevo.', variant: 'destructive' }))}>Confirmar pago</DropdownMenuItem>}
                                                         <DropdownMenuSeparator />
                                                         <div className="px-2 py-1.5 text-sm">Cambiar estado</div>
                                                         <Select defaultValue={order.status} onValueChange={(value) => handleStatusChange(order.id, value as Order['status'])}>

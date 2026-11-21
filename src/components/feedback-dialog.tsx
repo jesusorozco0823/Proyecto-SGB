@@ -11,14 +11,13 @@ import type { Appointment } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { suggestFeedback } from '@/ai/flows/suggest-feedback';
-import { mockBarbers, mockServices } from '@/lib/mock-data';
 import { Skeleton } from './ui/skeleton';
 
 interface FeedbackDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   appointment: Appointment;
-  onSubmit: (rating: number, comment: string) => void;
+  onSubmit: (rating: number, comment: string) => void | Promise<void>;
 }
 
 export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSubmit }: FeedbackDialogProps) {
@@ -30,15 +29,8 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const appointmentServices = useMemo(() => 
-    mockServices.filter(s => appointment.serviceIds.includes(s.id)),
-    [appointment.serviceIds]
-  );
-  
-  const appointmentBarber = useMemo(() =>
-    mockBarbers.find(b => b.id === appointment.barberId),
-    [appointment.barberId]
-  );
+  const appointmentServices = useMemo(() => appointment.services ?? [], [appointment.services]);
+  const barberName = appointment.barber?.name || 'el barbero';
 
   useEffect(() => {
     if (rating > 0 && isOpen) {
@@ -49,7 +41,7 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
           const result = await suggestFeedback({
             rating,
             serviceName: appointmentServices.map(s => s.name).join(', '),
-            barberName: appointmentBarber?.name || 'el barbero',
+            barberName,
           });
           setSuggestions(result.suggestions);
         } catch (error)          {
@@ -62,7 +54,7 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
     } else {
       setSuggestions([]);
     }
-  }, [rating, isOpen, appointmentServices, appointmentBarber]);
+  }, [rating, isOpen, appointmentServices, barberName]);
   
   useEffect(() => {
     // Reset state only when dialog is closed
@@ -77,13 +69,15 @@ export default function FeedbackDialog({ isOpen, onOpenChange, appointment, onSu
     }
   }, [isOpen]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-        onSubmit(rating, comment);
-        setIsSubmitting(false);
-    }, 1000);
+    try {
+      await onSubmit(rating, comment);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'No se pudo guardar la opinión.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

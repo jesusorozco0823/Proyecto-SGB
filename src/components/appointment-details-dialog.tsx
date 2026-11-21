@@ -4,12 +4,12 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import type { Appointment } from '@/lib/types';
-import { mockBarbers, mockServices } from '@/lib/mock-data';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
 import { Star } from 'lucide-react';
+import { formatCop } from '@/lib/money';
 
 interface AppointmentDetailsDialogProps {
   isOpen: boolean;
@@ -18,15 +18,15 @@ interface AppointmentDetailsDialogProps {
 }
 
 export default function AppointmentDetailsDialog({ isOpen, onOpenChange, appointment }: AppointmentDetailsDialogProps) {
-  const barber = mockBarbers.find(b => b.id === appointment.barberId);
-  const services = mockServices.filter(s => appointment.serviceIds.includes(s.id));
+  const services = appointment.services ?? [];
   const totalCost = services.reduce((acc, service) => acc + service.price, 0);
 
-  const getStatusText = (status: 'scheduled' | 'completed' | 'cancelled') => {
+  const getStatusText = (status: 'scheduled' | 'completed' | 'cancelled' | 'no_show') => {
     switch (status) {
       case 'completed': return 'Completada';
       case 'scheduled': return 'Programada';
       case 'cancelled': return 'Cancelada';
+      case 'no_show': return 'Inasistencia';
     }
   }
 
@@ -42,7 +42,7 @@ export default function AppointmentDetailsDialog({ isOpen, onOpenChange, appoint
         <div className="space-y-4 py-4">
           <div>
             <h4 className="font-semibold">Barbero</h4>
-            <p className="text-muted-foreground">{barber?.name}</p>
+            <p className="text-muted-foreground">{appointment.barber?.name}</p>
           </div>
           <div>
             <h4 className="font-semibold">Fecha y Hora</h4>
@@ -52,13 +52,13 @@ export default function AppointmentDetailsDialog({ isOpen, onOpenChange, appoint
             <h4 className="font-semibold">Servicios</h4>
             <ul className="list-disc list-inside text-muted-foreground">
               {services.map(s => (
-                <li key={s.id}>{s.name} (${s.price.toFixed(2)})</li>
+                <li key={s.id}>{s.name} ({formatCop(s.price)})</li>
               ))}
             </ul>
           </div>
           <div className="flex justify-between items-center pt-2 border-t">
             <h4 className="font-semibold">Coste Total</h4>
-            <p className="font-bold text-lg">${totalCost.toFixed(2)}</p>
+            <p className="font-bold text-lg">{formatCop(totalCost)}</p>
           </div>
            <div className="flex justify-between items-center">
             <h4 className="font-semibold">Estado</h4>

@@ -10,24 +10,70 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import RecommendedServices from '@/components/recommended-services';
+import { apiClient } from '@/lib/api-client';
 import { useToast } from '@/hooks/use-toast';
+import { Modal } from '@/components/ui/modal';
+import { ImageUpload } from '@/components/image-upload';
+
+function PasswordChange() {
+    const { toast } = useToast();
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const save = async () => {
+        try {
+            await apiClient.patch('/api/v1/users/me/password', { currentPassword, newPassword });
+            toast({ title: 'Contraseña actualizada', description: 'Vuelve a iniciar sesión.' });
+            window.location.href = '/';
+        } catch (error) {
+            toast({ title: 'No se pudo cambiar la contraseña', description: error instanceof Error ? error.message : 'Revisa los datos.', variant: 'destructive' });
+        }
+    };
+    return (
+        <div className="grid w-full gap-2">
+            <Label htmlFor="currentPassword">Contraseña actual</Label>
+            <Input id="currentPassword" type="password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} />
+            <Label htmlFor="newPassword">Nueva contraseña</Label>
+            <Input id="newPassword" type="password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} />
+            <Button variant="secondary" onClick={save}>Cambiar contraseña</Button>
+        </div>
+    );
+}
 
 export default function ProfilePage() {
-    const { user } = useAuth();
+    const { user, refresh } = useAuth();
     const { toast } = useToast();
     
     // Local state for form fields
     const [displayName, setDisplayName] = useState('');
     const [phone, setPhone] = useState('');
     const [preferences, setPreferences] = useState('');
+    const [photoOpen, setPhotoOpen] = useState(false);
+    const [photoUrl, setPhotoUrl] = useState('');
+    const [photoBusy, setPhotoBusy] = useState(false);
 
     useEffect(() => {
         if (user) {
             setDisplayName(user.displayName);
             setPhone(user.phone || '');
             setPreferences(user.preferences?.join(', ') || '');
+            setPhotoUrl(user.avatarUrl || '');
         }
     }, [user]);
+
+    const handleSavePhoto = async () => {
+        try {
+            await apiClient.patch('/api/v1/users/me', { avatarUrl: photoUrl });
+            await refresh();
+            setPhotoOpen(false);
+            toast({ title: 'Foto actualizada', description: 'Tu foto de perfil quedó guardada.' });
+        } catch (error) {
+            toast({
+                title: 'No se pudo cambiar la foto',
+                description: error instanceof Error ? error.message : 'Usa una URL válida.',
+                variant: 'destructive',
+            });
+        }
+    };
 
     if (!user) {
         return <div>Cargando...</div>;
@@ -35,17 +81,29 @@ export default function ProfilePage() {
 
     const userInitials = user.displayName?.split(' ').map(n => n[0]).join('') || 'U';
 
-    const handleSaveChanges = () => {
-        // Here you would typically call an API to save the changes.
-        // For this mock, we'll just show a toast notification.
-        console.log("Saving changes:", { displayName, phone, preferences });
-        toast({
-            title: "Perfil Actualizado",
-            description: "Tus cambios han sido guardados exitosamente.",
-        });
+    const handleSaveChanges = async () => {
+        try {
+            await apiClient.patch('/api/v1/users/me', {
+                displayName,
+                phone,
+                preferences: preferences.split(',').map((item) => item.trim()).filter(Boolean),
+            });
+            await refresh();
+            toast({
+                title: "Perfil Actualizado",
+                description: "Tus cambios han sido guardados exitosamente.",
+            });
+        } catch (error) {
+            toast({
+                title: 'No se pudo guardar el perfil',
+                description: error instanceof Error ? error.message : 'Inténtalo de nuevo.',
+                variant: 'destructive',
+            });
+        }
     };
 
     return (
+        <>
         <div className="grid gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2 space-y-6">
                 <Card>
@@ -79,8 +137,9 @@ export default function ProfilePage() {
                             </p>
                         </div>
                     </CardContent>
-                    <CardFooter>
+                    <CardFooter className="flex flex-col items-start gap-4">
                         <Button onClick={handleSaveChanges}>Guardar Cambios</Button>
+                        <PasswordChange />
                     </CardFooter>
                 </Card>
             </div>
@@ -93,11 +152,29 @@ export default function ProfilePage() {
                     </Avatar>
                     <h2 className="text-xl font-bold">{user.displayName}</h2>
                     <p className="text-muted-foreground">{user.documentNumber}</p>
-                    <Button variant="outline" className="mt-4">Cambiar Foto</Button>
+                    <Button variant="outline" className="mt-4" onClick={() => setPhotoOpen(true)}>Cambiar Foto</Button>
                 </Card>
                 
                 <RecommendedServices />
             </div>
         </div>
+        <Modal
+            open={photoOpen}
+            onOpenChange={setPhotoOpen}
+            title="Cambiar foto"
+            description="Elige una foto. Se reduce y se guarda como enlace público."
+            footer={(
+                <>
+                    <Button variant="outline" onClick={() => setPhotoOpen(false)} disabled={photoBusy}>Cancelar</Button>
+                    <Button onClick={handleSavePhoto} disabled={photoBusy || !photoUrl}>Guardar foto</Button>
+                </>
+            )}
+        >
+            <div className="space-y-2">
+                <Label htmlFor="photoUrl">Foto</Label>
+                <ImageUpload id="photoUrl" value={photoUrl} onChange={setPhotoUrl} kind="avatar" onBusy={setPhotoBusy} />
+            </div>
+        </Modal>
+        </>
     );
 }

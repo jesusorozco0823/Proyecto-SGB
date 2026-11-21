@@ -6,14 +6,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { Barber } from '@/lib/types';
 import { Textarea } from './ui/textarea';
 import { Loader2 } from 'lucide-react';
+import { ImageUpload } from '@/components/image-upload';
 
 interface AddBarberDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onAddBarber: (newBarberData: Omit<Barber, 'id' | 'rating' | 'schedule' | 'userId'>) => void;
+  onAddBarber: (newBarberData: {
+    name: string;
+    documentNumber: string;
+    phone: string;
+    password: string;
+    skills: string[];
+    imageUrl: string;
+  }) => void | Promise<void>;
 }
 
 export default function AddBarberDialog({ isOpen, onOpenChange, onAddBarber }: AddBarberDialogProps) {
@@ -25,33 +32,34 @@ export default function AddBarberDialog({ isOpen, onOpenChange, onAddBarber }: A
   const [imageUrl, setImageUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !skills || !documentNumber || !phone || !password) {
         alert("Por favor, completa todos los campos obligatorios.");
         return;
     }
-    
+
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-        onAddBarber({ 
+    try {
+        await onAddBarber({
             name,
             documentNumber,
             phone,
-            skills: skills.split(',').map(skill => skill.trim()),
+            password,
+            skills: skills.split(',').map(skill => skill.trim()).filter(Boolean),
             imageUrl: imageUrl || 'https://placehold.co/400x400.png'
         });
-
-        // Reset form
         setName('');
         setDocumentNumber('');
         setPhone('');
         setPassword('');
         setSkills('');
         setImageUrl('');
+    } catch (error) {
+        alert(error instanceof Error ? error.message : 'No se pudo crear el barbero.');
+    } finally {
         setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -85,9 +93,11 @@ export default function AddBarberDialog({ isOpen, onOpenChange, onAddBarber }: A
                     <Label htmlFor="barber-skills" className="text-right">Habilidades</Label>
                     <Textarea id="barber-skills" value={skills} onChange={(e) => setSkills(e.target.value)} className="col-span-3" placeholder="Ej: Cortes Clásicos, Degradados..." required disabled={isLoading} />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="barber-image" className="text-right">URL de Imagen</Label>
-                    <Input id="barber-image" type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="col-span-3" placeholder="https://placehold.co/400x400.png" disabled={isLoading} />
+                <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="barber-image" className="pt-2 text-right">Foto</Label>
+                    <div className="col-span-3">
+                        <ImageUpload id="barber-image" value={imageUrl} onChange={setImageUrl} kind="avatar" disabled={isLoading} />
+                    </div>
                 </div>
             </div>
             <DialogFooter>

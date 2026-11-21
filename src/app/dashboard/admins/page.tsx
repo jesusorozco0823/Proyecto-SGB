@@ -13,7 +13,7 @@ import EditAdminDialog from "@/components/edit-admin-dialog";
 import DeleteAdminDialog from "@/components/delete-admin-dialog";
 import type { User } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
-import { getUsers, addUser, updateUser, deleteUser } from "@/lib/user-store";
+import { apiClient } from "@/lib/api-client";
 
 export default function AdminsPage() {
     const [admins, setAdmins] = useState<User[]>([]);
@@ -23,38 +23,31 @@ export default function AdminsPage() {
     const { toast } = useToast();
 
     useEffect(() => {
-        // Cargar administradores al montar el componente
-        const allUsers = getUsers();
-        setAdmins(allUsers.filter(user => user.role === 'admin'));
+        void refreshAdmins();
     }, []);
 
-    const refreshAdmins = () => {
-        const allUsers = getUsers();
-        setAdmins(allUsers.filter(user => user.role === 'admin'));
+    const refreshAdmins = async () => {
+        const rows = await apiClient.get<User[]>('/api/v1/admins');
+        setAdmins(rows);
     };
 
-    const handleAddAdmin = (newAdminData: Omit<User, 'id' | 'role' | 'avatarUrl'>) => {
-        const newAdmin: User = {
-            id: `user-${Date.now()}`,
-            ...newAdminData,
-            role: 'admin',
-            avatarUrl: 'https://placehold.co/100x100.png',
-        };
-        
-        addUser(newAdmin);
-        refreshAdmins();
-
+    const handleAddAdmin = async (newAdminData: { displayName: string; documentNumber: string; phone: string; password: string }) => {
+        await apiClient.post('/api/v1/admins', newAdminData);
+        await refreshAdmins();
         toast({
             title: "Administrador Creado",
-            description: `${newAdmin.displayName} ha sido añadido como administrador.`,
+            description: `${newAdminData.displayName} ha sido añadido como administrador.`,
         });
-
         setIsAddAdminDialogOpen(false);
     };
 
-    const handleUpdateAdmin = (updatedAdmin: User) => {
-        updateUser(updatedAdmin);
-        refreshAdmins();
+    const handleUpdateAdmin = async (updatedAdmin: User) => {
+        await apiClient.patch(`/api/v1/admins/${updatedAdmin.id}`, {
+            displayName: updatedAdmin.displayName,
+            documentNumber: updatedAdmin.documentNumber,
+            phone: updatedAdmin.phone,
+        });
+        await refreshAdmins();
         toast({
             title: "Administrador Actualizado",
             description: `Los datos de ${updatedAdmin.displayName} han sido actualizados.`,
@@ -62,18 +55,24 @@ export default function AdminsPage() {
         setEditingAdmin(null);
     };
 
-    const handleDeleteAdmin = () => {
+    const handleDeleteAdmin = async () => {
         if (!deletingAdmin) return;
-        
-        deleteUser(deletingAdmin.id);
-        refreshAdmins();
-
-        toast({
-            title: "Administrador Eliminado",
-            description: `${deletingAdmin.displayName} ha sido eliminado.`,
-            variant: "destructive",
-        });
-        setDeletingAdmin(null);
+        try {
+            await apiClient.delete(`/api/v1/admins/${deletingAdmin.id}`);
+            await refreshAdmins();
+            toast({
+                title: "Administrador Eliminado",
+                description: `${deletingAdmin.displayName} ha sido eliminado.`,
+                variant: "destructive",
+            });
+            setDeletingAdmin(null);
+        } catch (error) {
+            toast({
+                title: "No se pudo eliminar",
+                description: error instanceof Error ? error.message : "Inténtalo de nuevo.",
+                variant: "destructive",
+            });
+        }
     };
 
     return (

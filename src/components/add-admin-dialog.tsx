@@ -6,13 +6,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { User } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 
 interface AddAdminDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onAddAdmin: (newAdminData: Omit<User, 'id' | 'role' | 'avatarUrl'>) => void;
+  onAddAdmin: (newAdminData: { displayName: string; documentNumber: string; phone: string; password: string }) => void | Promise<void>;
 }
 
 export default function AddAdminDialog({ isOpen, onOpenChange, onAddAdmin }: AddAdminDialogProps) {
@@ -22,25 +21,25 @@ export default function AddAdminDialog({ isOpen, onOpenChange, onAddAdmin }: Add
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!displayName || !documentNumber || !phone || !password) {
         alert("Por favor, completa todos los campos.");
         return;
     }
-    
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-        onAddAdmin({ displayName, documentNumber, phone });
 
-        // Reset form
+    setIsLoading(true);
+    try {
+        await onAddAdmin({ displayName, documentNumber, phone, password });
         setDisplayName('');
         setDocumentNumber('');
         setPhone('');
         setPassword('');
+    } catch (error) {
+        alert(error instanceof Error ? error.message : 'No se pudo crear el administrador.');
+    } finally {
         setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
