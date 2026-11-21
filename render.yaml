@@ -4,7 +4,7 @@ services:
     name: sgb-barberias
     runtime: node
     plan: free
-    branch: cursor/panel-credito-y-citas
+    branch: main
     buildCommand: npm ci && npx prisma generate && npm run build
     startCommand: npx prisma migrate deploy && npm start
     envVars:
