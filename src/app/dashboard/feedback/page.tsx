@@ -1,17 +1,19 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+"use client";
+
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { mockFeedback, mockAppointments } from "@/lib/mock-data";
-import { getUsers } from "@/lib/user-store";
 import { Star } from "lucide-react";
 import SentimentBadge from "@/components/sentiment-badge";
+import type { Feedback } from '@/lib/types';
+import { apiClient } from '@/lib/api-client';
 
 export default function FeedbackPage() {
-    const getFeedbackDetails = (feedback: typeof mockFeedback[0]) => {
-        const allUsers = getUsers();
-        const appointment = mockAppointments.find(a => a.id === feedback.appointmentId);
-        const user = allUsers.find(u => u.id === appointment?.userId);
-        return { user };
-    };
+    const [feedbackItems, setFeedbackItems] = useState<Feedback[]>([]);
+
+    useEffect(() => {
+        apiClient.get<Feedback[]>('/api/v1/feedback').then(setFeedbackItems).catch(() => setFeedbackItems([]));
+    }, []);
 
     return (
         <div className="space-y-6">
@@ -19,7 +21,7 @@ export default function FeedbackPage() {
                 <h1 className="text-3xl font-bold font-headline">Opiniones de Clientes</h1>
                 <p className="text-muted-foreground">Revisa y analiza las opiniones para mejorar tu servicio.</p>
             </div>
-            {mockFeedback.length === 0 ? (
+            {feedbackItems.length === 0 ? (
                 <Card>
                     <CardContent className="pt-6">
                         <p className="text-center text-muted-foreground">Todavía no hay opiniones de clientes para mostrar.</p>
@@ -27,8 +29,8 @@ export default function FeedbackPage() {
                 </Card>
             ) : (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {mockFeedback.map(feedback => {
-                        const { user } = getFeedbackDetails(feedback);
+                    {feedbackItems.map(feedback => {
+                        const user = feedback.user;
                         const userInitials = user?.displayName?.split(' ').map(n => n[0]).join('') || 'U';
 
                         return (

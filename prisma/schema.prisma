@@ -1,0 +1,424 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  client
+  admin
+  barber
+  superadmin
+}
+
+enum AppointmentStatus {
+  scheduled
+  completed
+  cancelled
+  no_show
+}
+
+enum DepositStatus {
+  waived
+  pending
+  paid
+}
+
+enum PaymentStatus {
+  pending
+  paid
+}
+
+enum WaitlistStatus {
+  waiting
+  notified
+}
+
+enum Attendance {
+  pending
+  confirmed
+  declined
+}
+
+enum OrderStatus {
+  pending
+  shipped
+  delivered
+  cancelled
+}
+
+enum Sentiment {
+  positive
+  negative
+  neutral
+}
+
+enum CreditKind {
+  owed
+  prepaid
+}
+
+enum CreditMeasure {
+  cuts
+  budget
+}
+
+enum CreditStatus {
+  pending_barber
+  barber_rejected
+  pending_admin
+  admin_rejected
+  active
+  closed
+}
+
+model User {
+  id             String   @id @default(cuid())
+  displayName    String
+  documentNumber String   @unique
+  passwordHash   String
+  role           UserRole
+  phone          String?
+  preferences    String[]
+  avatarUrl      String?
+  totpSecret     String?
+  totpEnabled    Boolean  @default(false)
+  noShowCount    Int      @default(0)
+  blockedAt      DateTime?
+  blockReason    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  barberProfile Barber?
+  appointments  Appointment[] @relation("ClientAppointments")
+  orders        Order[]
+  sessions      Session[]
+  waitlist      WaitlistEntry[]
+  auditLogs     AuditLog[]
+  sentMessages  Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  creditRequests CreditRequest[] @relation("CreditClient")
+}
+
+model Barber {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  documentNumber String   @unique
+  phone          String
+  skills         String[]
+  rating         Float    @default(0)
+  imageUrl       String
+  schedules      BarberSchedule[]
+  appointments   Appointment[]
+  services       BarberService[]
+  dayPlans       DayPlan[]
+  dayTurns       DayTurn[]
+  dayOffs        DayOff[]
+  waitlist       WaitlistEntry[]
+  creditRequests CreditRequest[]
+}
+
+model BarberSchedule {
+  id        String @id @default(cuid())
+  barberId  String
+  barber    Barber @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  dayOfWeek Int
+  startMin  Int?
+  endMin    Int?
+
+  @@unique([barberId, dayOfWeek])
+}
+
+model Service {
+  id          String  @id @default(cuid())
+  name        String
+  duration    Int
+  price       Decimal @db.Decimal(10, 2)
+  description String
+  active      Boolean @default(true)
+  lines       AppointmentService[]
+}
+
+model Appointment {
+  id                 String            @id @default(cuid())
+  userId             String
+  client             User              @relation("ClientAppointments", fields: [userId], references: [id])
+  barberId           String
+  barber             Barber            @relation(fields: [barberId], references: [id])
+  startsAt           DateTime
+  endsAt             DateTime
+  status             AppointmentStatus @default(scheduled)
+  attendance         Attendance        @default(pending)
+  remindedAt         DateTime?
+  cancellationReason String?
+  depositStatus      DepositStatus     @default(waived)
+  depositAmount      Decimal           @default(0) @db.Decimal(10, 2)
+  services           AppointmentService[]
+  barberServiceId    String?
+  barberService      BarberService?    @relation(fields: [barberServiceId], references: [id])
+  dayTurnId          String?           @unique
+  dayTurn            DayTurn?          @relation(fields: [dayTurnId], references: [id])
+  feedback           Feedback?
+  creditUse          CreditUse?
+  createdAt          DateTime          @default(now())
+
+  @@index([barberId, status, startsAt])
+  @@index([userId, startsAt])
+}
+
+model AppointmentService {
+  appointmentId String
+  serviceId     String
+  price         Decimal     @db.Decimal(10, 2)
+  duration      Int
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  service       Service     @relation(fields: [serviceId], references: [id])
+
+  @@id([appointmentId, serviceId])
+}
+
+model InventoryItem {
+  id       String      @id @default(cuid())
+  sku      String      @unique
+  name     String
+  stock    Int
+  price    Decimal     @db.Decimal(10, 2)
+  imageUrl String
+  active   Boolean     @default(true)
+  lines    OrderItem[]
+  alerts   StockAlert[]
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  total         Decimal       @db.Decimal(10, 2)
+  status        OrderStatus   @default(pending)
+  paymentStatus PaymentStatus @default(pending)
+  createdAt DateTime    @default(now())
+  items     OrderItem[]
+
+  @@index([userId, createdAt])
+}
+
+model OrderItem {
+  id       String        @id @default(cuid())
+  orderId  String
+  itemId   String
+  quantity Int
+  price    Decimal       @db.Decimal(10, 2)
+  order    Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  item     InventoryItem @relation(fields: [itemId], references: [id])
+}
+
+model LunchPolicy {
+  id                String   @id @default("default")
+  durationMinutes   Int
+  depositAmount     Decimal  @default(0) @db.Decimal(10, 2)
+  commissionPercent Int      @default(40)
+  lowStockThreshold Int      @default(5)
+  updatedAt         DateTime @updatedAt
+}
+
+model BarberService {
+  id              String   @id @default(cuid())
+  barberId        String
+  barber          Barber   @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  name            String
+  durationMinutes Int
+  price           Decimal  @default(0) @db.Decimal(10, 2)
+  description     String?
+  isSpecial       Boolean  @default(false)
+  active          Boolean  @default(true)
+  templates       TurnTemplate[]
+  dayTurns        DayTurn[]
+  appointments    Appointment[]
+  waitlist        WaitlistEntry[]
+
+  @@index([barberId, active])
+}
+
+model DayPlan {
+  id                String @id @default(cuid())
+  barberId          String
+  barber            Barber @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  dayOfWeek         Int
+  openMin           Int
+  closeMin          Int
+  lunchStartMin     Int
+  effectiveCloseMin Int
+  templates         TurnTemplate[]
+
+  @@unique([barberId, dayOfWeek])
+}
+
+model TurnTemplate {
+  id              String         @id @default(cuid())
+  dayPlanId       String
+  dayPlan         DayPlan        @relation(fields: [dayPlanId], references: [id], onDelete: Cascade)
+  startMin        Int
+  endMin          Int
+  durationMinutes Int
+  serviceId       String?
+  service         BarberService? @relation(fields: [serviceId], references: [id])
+  isExtra         Boolean        @default(false)
+  placedByBarber  Boolean        @default(false)
+  dayTurns        DayTurn[]
+
+  @@index([dayPlanId, startMin])
+}
+
+enum TurnStatus {
+  open
+  booked
+  withdrawn
+}
+
+model DayTurn {
+  id              String         @id @default(cuid())
+  barberId        String
+  barber          Barber         @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  templateId      String?
+  template        TurnTemplate?  @relation(fields: [templateId], references: [id])
+  date            DateTime       @db.Date
+  startMin        Int
+  endMin          Int
+  durationMinutes Int
+  serviceId       String?
+  service         BarberService? @relation(fields: [serviceId], references: [id])
+  status          TurnStatus     @default(open)
+  isExtra         Boolean        @default(false)
+  appointment     Appointment?
+
+  @@unique([barberId, date, startMin])
+  @@index([barberId, date, status])
+}
+
+model Session {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, revokedAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String
+  actor     User     @relation(fields: [actorId], references: [id], onDelete: Cascade)
+  action    String
+  resource  String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model Holiday {
+  date   DateTime @id @db.Date
+  reason String
+}
+
+model DayOff {
+  id       String   @id @default(cuid())
+  barberId String
+  barber   Barber   @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  date     DateTime @db.Date
+  reason   String
+
+  @@unique([barberId, date])
+}
+
+model WaitlistEntry {
+  id        String         @id @default(cuid())
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  barberId  String
+  barber    Barber         @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  serviceId String
+  service   BarberService  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  date      DateTime       @db.Date
+  status    WaitlistStatus @default(waiting)
+  createdAt DateTime       @default(now())
+
+  @@unique([userId, barberId, serviceId, date])
+}
+
+model StockAlert {
+  id        String        @id @default(cuid())
+  itemId    String
+  item      InventoryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  stock     Int
+  seen      Boolean       @default(false)
+  createdAt DateTime      @default(now())
+
+  @@index([seen, createdAt])
+}
+
+model Feedback {
+  id            String     @id @default(cuid())
+  appointmentId String     @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  rating        Int
+  comment       String
+  sentiment     Sentiment?
+  confidence    Float?
+  createdAt     DateTime   @default(now())
+}
+
+model CreditRequest {
+  id          String         @id @default(cuid())
+  clientId    String
+  client      User           @relation("CreditClient", fields: [clientId], references: [id], onDelete: Cascade)
+  barberId    String
+  barber      Barber         @relation(fields: [barberId], references: [id], onDelete: Cascade)
+  kind        CreditKind
+  note        String?
+  status      CreditStatus   @default(pending_barber)
+  measure     CreditMeasure?
+  limitCuts   Int?
+  limitAmount Decimal?       @db.Decimal(10, 2)
+  usedCuts    Int            @default(0)
+  usedAmount  Decimal        @default(0) @db.Decimal(10, 2)
+  adminUserId String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  uses        CreditUse[]
+
+  @@index([clientId, barberId, status])
+  @@index([barberId, status])
+  @@index([status, createdAt])
+}
+
+model CreditUse {
+  id            String        @id @default(cuid())
+  creditId      String
+  credit        CreditRequest @relation(fields: [creditId], references: [id], onDelete: Cascade)
+  appointmentId String        @unique
+  appointment   Appointment   @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  cuts          Int           @default(0)
+  amount        Decimal       @default(0) @db.Decimal(10, 2)
+  createdAt     DateTime      @default(now())
+}
+
+model Message {
+  id          String    @id @default(cuid())
+  senderId    String
+  sender      User      @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  recipientId String
+  recipient   User      @relation("ReceivedMessages", fields: [recipientId], references: [id], onDelete: Cascade)
+  body        String
+  readAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([recipientId, readAt, createdAt])
+  @@index([createdAt])
+}

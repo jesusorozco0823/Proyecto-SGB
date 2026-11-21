@@ -4,17 +4,18 @@
 import Image from 'next/image';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import type { Order, User } from '@/lib/types';
+import type { Order } from '@/lib/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Separator } from './ui/separator';
+import { formatCop } from '@/lib/money';
 
 interface OrderDetailsDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   order: Order;
   orderDetails: {
-    user: User | undefined;
+    user: { displayName: string; documentNumber?: string } | undefined;
     itemsWithDetails: (Order['items'][0] & { name: string; imageUrl: string })[];
   };
 }
@@ -48,7 +49,7 @@ export default function OrderDetailsDialog({ isOpen, onOpenChange, order, orderD
                     <p className="font-medium">{item.name}</p>
                     <p className="text-sm text-muted-foreground">Cantidad: {item.quantity}</p>
                   </div>
-                  <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                  <p className="font-semibold">{formatCop(item.price * item.quantity)}</p>
                 </div>
               ))}
             </div>
@@ -56,7 +57,7 @@ export default function OrderDetailsDialog({ isOpen, onOpenChange, order, orderD
           <Separator />
           <div className="flex justify-between items-center text-lg">
             <h4 className="font-semibold">Total del Pedido</h4>
-            <p className="font-bold">${order.total.toFixed(2)}</p>
+            <p className="font-bold">{formatCop(order.total)}</p>
           </div>
         </div>
         <DialogFooter>

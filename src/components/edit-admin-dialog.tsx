@@ -12,7 +12,7 @@ import { Loader2 } from 'lucide-react';
 interface EditAdminDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onUpdateAdmin: (updatedAdmin: User) => void;
+  onUpdateAdmin: (updatedAdmin: User) => void | Promise<void>;
   admin: User | null;
 }
 
@@ -30,24 +30,26 @@ export default function EditAdminDialog({ isOpen, onOpenChange, onUpdateAdmin, a
     }
   }, [admin]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!displayName || !documentNumber || !phone || !admin) {
         alert("Por favor, completa todos los campos.");
         return;
     }
-    
+
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-        onUpdateAdmin({ 
+    try {
+        await onUpdateAdmin({
             ...admin,
             displayName,
             documentNumber,
             phone,
         });
+    } catch (error) {
+        alert(error instanceof Error ? error.message : 'No se pudo actualizar el administrador.');
+    } finally {
         setIsLoading(false);
-    }, 1000);
+    }
   };
   
   const handleClose = () => {

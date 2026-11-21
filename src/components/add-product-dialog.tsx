@@ -8,11 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { InventoryItem } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
+import { ImageUpload } from '@/components/image-upload';
 
 interface AddProductDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onAddProduct: (newProductData: Omit<InventoryItem, 'id'>) => void;
+  onAddProduct: (newProductData: Omit<InventoryItem, 'id'>) => void | Promise<void>;
 }
 
 export default function AddProductDialog({ isOpen, onOpenChange, onAddProduct }: AddProductDialogProps) {
@@ -23,32 +24,32 @@ export default function AddProductDialog({ isOpen, onOpenChange, onAddProduct }:
   const [imageUrl, setImageUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !sku || !price || !stock) {
         alert("Por favor, completa todos los campos obligatorios.");
         return;
     }
-    
+
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-        onAddProduct({
+    try {
+        await onAddProduct({
             name,
             sku,
             price: parseFloat(price),
             stock: parseInt(stock, 10),
             imageUrl: imageUrl,
         });
-
-        // Reset form
         setName('');
         setSku('');
         setPrice('');
         setStock('');
         setImageUrl('');
+    } catch (error) {
+        alert(error instanceof Error ? error.message : 'No se pudo añadir el producto.');
+    } finally {
         setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -78,9 +79,11 @@ export default function AddProductDialog({ isOpen, onOpenChange, onAddProduct }:
                     <Label htmlFor="prod-stock" className="text-right">Stock</Label>
                     <Input id="prod-stock" type="number" value={stock} onChange={(e) => setStock(e.target.value)} className="col-span-3" required disabled={isLoading} />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="prod-image" className="text-right">URL Imagen</Label>
-                    <Input id="prod-image" type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="col-span-3" placeholder="Opcional" disabled={isLoading} />
+                <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="prod-image" className="pt-2 text-right">Foto</Label>
+                    <div className="col-span-3">
+                        <ImageUpload id="prod-image" value={imageUrl} onChange={setImageUrl} kind="product" disabled={isLoading} />
+                    </div>
                 </div>
             </div>
             <DialogFooter>

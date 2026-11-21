@@ -13,7 +13,7 @@ import { suggestCancellationReasons } from '@/ai/flows/suggest-cancellation-reas
 interface CancelAppointmentDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onSubmit: (reason: string) => void;
+  onSubmit: (reason: string) => void | Promise<void>;
 }
 
 export default function CancelAppointmentDialog({ isOpen, onOpenChange, onSubmit }: CancelAppointmentDialogProps) {
@@ -45,14 +45,15 @@ export default function CancelAppointmentDialog({ isOpen, onOpenChange, onSubmit
     }
   }, [isOpen]);
 
-  const handleSubmit = () => {
-    if (reason.trim()) {
-      setIsSubmitting(true);
-      // Simulate API call
-      setTimeout(() => {
-        onSubmit(reason);
-        setIsSubmitting(false);
-      }, 1000);
+  const handleSubmit = async () => {
+    if (!reason.trim()) return;
+    setIsSubmitting(true);
+    try {
+      await onSubmit(reason);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'No se pudo cancelar la cita.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

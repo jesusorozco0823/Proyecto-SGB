@@ -8,28 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter } from 'next/navigation';
-import { getUsers, addUser } from '@/lib/user-store';
-import type { User } from '@/lib/types';
-import { Loader2 } from 'lucide-react';
-
-function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16c-2.48 0-4.575-1.581-5.335-3.794a4.522 4.522 0 0 1 0-2.412C3.425 7.581 5.52 6 8 6c1.58 0 2.998.636 4.032 1.664L10.75 9.458a2.47 2.47 0 0 0-2.75-.998c-1.354 0-2.454 1.122-2.454 2.5s1.1 2.5 2.454 2.5c1.218 0 2.15-.773 2.36-1.849h-2.36v-2.332h4.492z" />
-    </svg>
-  );
-}
+import { apiClient } from '@/lib/api-client';
+import { Loader2, LogIn } from 'lucide-react';
+import { TotpSetup } from '@/components/auth/totp-setup';
 
 
 export default function AuthPage() {
@@ -45,55 +26,99 @@ export default function AuthPage() {
   const [documentSignup, setDocumentSignup] = useState('');
   const [phoneSignup, setPhoneSignup] = useState('');
   const [passwordSignup, setPasswordSignup] = useState('');
+  const [notice, setNotice] = useState('');
+  const [mfa, setMfa] = useState<{ challenge: string; otpauthUrl: string | null; setup: boolean } | null>(null);
+  const [code, setCode] = useState('');
 
-  const handleAuth = (documentNumber: string) => {
+  const handleAuth = async (documentNumber: string) => {
     setIsLoading(true);
-    // Simular una llamada a la API
-    setTimeout(() => {
-        const users = getUsers();
-        const user = users.find(u => u.documentNumber === documentNumber);
-        
-        if (user) {
-            localStorage.setItem('userDocument', documentNumber);
-            router.push('/dashboard');
-        } else {
-            alert("Usuario no encontrado o contraseña incorrecta.");
-            setIsLoading(false);
-        }
-    }, 1000);
+    try {
+      const result = await apiClient.post<{ mfa?: string; challenge?: string; otpauthUrl?: string | null }>('/api/v1/auth/login', { documentNumber, password: passwordLogin });
+      if (result.mfa && result.challenge) {
+        setMfa({ challenge: result.challenge, otpauthUrl: result.otpauthUrl ?? null, setup: result.mfa === 'mfa_setup' });
+        setIsLoading(false);
+        return;
+      }
+      router.push('/dashboard');
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'No se pudo iniciar sesión.');
+      setIsLoading(false);
+    }
   };
 
-  const handleRegistration = () => {
+  const handleMfa = async () => {
+    if (!mfa) return;
     setIsLoading(true);
-    if (!nameSignup || !documentSignup || !phoneSignup || !passwordSignup) {
-      alert("Por favor, completa todos los campos.");
+    try {
+      await apiClient.post('/api/v1/auth/mfa', { challenge: mfa.challenge, code });
+      router.push('/dashboard');
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'El código no es válido.');
       setIsLoading(false);
+    }
+  };
+
+  const handleRegistration = async () => {
+    if (!nameSignup || !documentSignup || !phoneSignup || !passwordSignup) {
+      alert('Por favor, completa todos los campos.');
       return;
     }
 
-    // Simular una llamada a la API
-    setTimeout(() => {
-        const newUser: User = {
-        id: `user-${Date.now()}`,
+    setIsLoading(true);
+    try {
+      await apiClient.post('/api/v1/auth/register', {
         displayName: nameSignup,
         documentNumber: documentSignup,
         phone: phoneSignup,
-        role: 'client',
-        avatarUrl: 'https://placehold.co/100x100.png',
-        };
-
-        addUser(newUser);
-        handleAuth(documentSignup);
-    }, 1000);
+        password: passwordSignup,
+      });
+      setNotice('Si los datos son válidos, ya puedes iniciar sesión con tu documento.');
+      setIsLoading(false);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'No se pudo crear la cuenta.');
+      setIsLoading(false);
+    }
   };
   
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background p-4">
+    <div className="flex min-h-dvh items-center justify-center bg-background p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-            <h1 className="text-4xl font-headline font-bold text-primary">SalonFlow</h1>
+            <h1 className="text-3xl font-headline font-bold text-primary sm:text-4xl">SalonFlow</h1>
             <p className="text-muted-foreground mt-2">El sistema de gestión premier para barberías modernas.</p>
         </div>
+        {notice && <p className="mb-4 text-center text-sm text-muted-foreground">{notice}</p>}
+        {mfa ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>{mfa.setup ? 'Activa el segundo factor' : 'Código de verificación'}</CardTitle>
+              <CardDescription>
+                {mfa.setup
+                  ? 'Escanea el código QR y escribe el código de 6 dígitos que muestra la app.'
+                  : 'Escribe el código de 6 dígitos de tu aplicación de autenticación.'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {mfa.setup && mfa.otpauthUrl && <TotpSetup otpauthUrl={mfa.otpauthUrl} />}
+              <div className="space-y-2">
+                <Label htmlFor="mfa-code">Código de 6 dígitos</Label>
+                <Input
+                  id="mfa-code"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={code}
+                  onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="000000"
+                  disabled={isLoading}
+                />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button className="w-full" onClick={handleMfa} disabled={isLoading}>Confirmar código</Button>
+            </CardFooter>
+          </Card>
+        ) : (
         <Tabs defaultValue="login" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
@@ -136,8 +161,8 @@ export default function AuthPage() {
                     Ingresar
                  </Button>
                  <p className="text-xs text-muted-foreground text-center">O</p>
-                <Button variant="outline" className="w-full" disabled={isLoading}>
-                  <GoogleIcon className="mr-2 h-4 w-4" />
+                <Button variant="outline" className="w-full" disabled>
+                  <LogIn className="mr-2 h-4 w-4" />
                   Iniciar sesión con Google
                 </Button>
               </CardFooter>
@@ -201,14 +226,15 @@ export default function AuthPage() {
                     Crear Cuenta
                 </Button>
                  <p className="text-xs text-muted-foreground text-center">O</p>
-                <Button variant="outline" className="w-full" disabled={isLoading}>
-                  <GoogleIcon className="mr-2 h-4 w-4" />
+                <Button variant="outline" className="w-full" disabled>
+                  <LogIn className="mr-2 h-4 w-4" />
                   Registrarse con Google
                 </Button>
               </CardFooter>
             </Card>
           </TabsContent>
         </Tabs>
+        )}
       </div>
     </div>
   );

@@ -36,17 +36,24 @@ export interface Appointment {
   barberId: string;
   serviceIds: string[];
   datetime: Date;
-  status: 'scheduled' | 'completed' | 'cancelled';
+  status: 'scheduled' | 'completed' | 'cancelled' | 'no_show';
+  attendance?: 'pending' | 'confirmed' | 'declined';
+  depositStatus?: 'waived' | 'pending' | 'paid';
+  depositAmount?: number;
   cancellationReason?: string;
   rating?: number;
   comment?: string;
+  client?: { id: string; displayName: string; avatarUrl?: string };
+  barber?: { id: string; name: string; userId?: string };
+  services?: Service[];
 }
 
 export interface InventoryItem {
   id: string;
   sku: string;
   name: string;
-  stock: number;
+  stock?: number;
+  availability?: 'disponible' | 'ultimas' | 'agotado';
   price: number;
   imageUrl: string;
 }
@@ -57,6 +64,7 @@ export interface Feedback {
   rating: number;
   comment: string;
   sentiment?: 'positive' | 'negative' | 'neutral';
+  user?: { displayName: string; avatarUrl?: string };
 }
 
 export interface Order {
@@ -65,9 +73,13 @@ export interface Order {
     items: {
         itemId: string;
         quantity: number;
-        price: number; // Price at time of purchase
+        price: number;
+        name?: string;
+        imageUrl?: string;
     }[];
     total: number;
     status: 'pending' | 'shipped' | 'delivered' | 'cancelled';
+    paymentStatus?: 'pending' | 'paid';
     createdAt: Date;
+    user?: { id: string; displayName: string; documentNumber?: string };
 }

@@ -8,11 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { InventoryItem } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
+import { ImageUpload } from '@/components/image-upload';
 
 interface EditProductDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdateProduct: (updatedProduct: InventoryItem) => void;
+  onUpdateProduct: (updatedProduct: InventoryItem) => void | Promise<void>;
   product: InventoryItem | null;
 }
 
@@ -29,22 +30,21 @@ export default function EditProductDialog({ isOpen, onOpenChange, onUpdateProduc
       setName(product.name);
       setSku(product.sku);
       setPrice(product.price.toString());
-      setStock(product.stock.toString());
+      setStock(String(product.stock ?? 0));
       setImageUrl(product.imageUrl);
     }
   }, [product]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !sku || !price || !stock || !product) {
         alert("Por favor, completa todos los campos obligatorios.");
         return;
     }
-    
+
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-        onUpdateProduct({ 
+    try {
+        await onUpdateProduct({
             ...product,
             name,
             sku,
@@ -52,8 +52,11 @@ export default function EditProductDialog({ isOpen, onOpenChange, onUpdateProduc
             stock: parseInt(stock, 10),
             imageUrl: imageUrl || 'https://placehold.co/200x200.png',
         });
+    } catch (error) {
+        alert(error instanceof Error ? error.message : 'No se pudo actualizar el producto.');
+    } finally {
         setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -83,9 +86,11 @@ export default function EditProductDialog({ isOpen, onOpenChange, onUpdateProduc
                     <Label htmlFor="prod-stock-edit" className="text-right">Stock</Label>
                     <Input id="prod-stock-edit" type="number" value={stock} onChange={(e) => setStock(e.target.value)} className="col-span-3" required disabled={isLoading} />
                 </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="prod-image-edit" className="text-right">URL Imagen</Label>
-                    <Input id="prod-image-edit" type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className="col-span-3" placeholder="Opcional" disabled={isLoading} />
+                <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="prod-image-edit" className="pt-2 text-right">Foto</Label>
+                    <div className="col-span-3">
+                        <ImageUpload id="prod-image-edit" value={imageUrl} onChange={setImageUrl} kind="product" disabled={isLoading} />
+                    </div>
                 </div>
             </div>
             <DialogFooter>

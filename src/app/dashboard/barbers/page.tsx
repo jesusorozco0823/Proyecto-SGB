@@ -1,47 +1,52 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { mockBarbers } from "@/lib/mock-data";
 import { Star, PlusCircle, Phone, Fingerprint } from "lucide-react";
 import Image from "next/image";
 import type { Barber } from "@/lib/types";
 import AddBarberDialog from "@/components/add-barber-dialog";
 import EditBarberDialog from "@/components/edit-barber-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { apiClient } from "@/lib/api-client";
 
 export default function BarbersPage() {
-    const [barbers, setBarbers] = useState<Barber[]>(mockBarbers);
+    const [barbers, setBarbers] = useState<Barber[]>([]);
     const [isAddBarberDialogOpen, setIsAddBarberDialogOpen] = useState(false);
     const [editingBarber, setEditingBarber] = useState<Barber | null>(null);
     const { toast } = useToast();
 
-    const handleAddBarber = (newBarberData: Omit<Barber, 'id' | 'rating' | 'schedule'>) => {
-        const newBarber: Barber = {
-            id: `barber-${Date.now()}`,
-            ...newBarberData,
-            rating: 5.0, // Default rating
-            schedule: {}, // Default empty schedule
-        };
-        
-        setBarbers(prevBarbers => [...prevBarbers, newBarber]);
+    const loadBarbers = async () => {
+        setBarbers(await apiClient.get<Barber[]>('/api/v1/barbers'));
+    };
 
+    useEffect(() => {
+        void loadBarbers();
+    }, []);
+
+    const handleAddBarber = async (newBarberData: { name: string; documentNumber: string; phone: string; password: string; skills: string[]; imageUrl: string }) => {
+        await apiClient.post('/api/v1/barbers', newBarberData);
+        await loadBarbers();
         toast({
             title: "Barbero Añadido",
-            description: `${newBarber.name} ha sido añadido al equipo.`,
+            description: `${newBarberData.name} ha sido añadido al equipo.`,
         });
-
         setIsAddBarberDialogOpen(false);
     };
 
-    const handleUpdateBarber = (updatedBarber: Barber) => {
-        setBarbers(prevBarbers => 
-            prevBarbers.map(b => b.id === updatedBarber.id ? updatedBarber : b)
-        );
+    const handleUpdateBarber = async (updatedBarber: Barber) => {
+        await apiClient.patch(`/api/v1/barbers/${updatedBarber.id}`, {
+            name: updatedBarber.name,
+            documentNumber: updatedBarber.documentNumber,
+            phone: updatedBarber.phone,
+            skills: updatedBarber.skills,
+            imageUrl: updatedBarber.imageUrl,
+        });
+        await loadBarbers();
         toast({
             title: "Perfil Actualizado",
             description: `Los datos de ${updatedBarber.name} han sido actualizados.`,
