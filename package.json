@@ -10,11 +10,12 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test:domain": "tsx --test src/server/modules/barbers/domain/turn-planner.test.ts src/server/modules/credits/domain/credit-visibility.test.ts src/server/modules/credits/application/credit.service.test.ts src/server/shared/cache/read-cache.test.ts src/lib/upload-image.test.ts",
+    "test:domain": "tsx --test src/server/modules/barbers/domain/turn-planner.test.ts src/server/modules/credits/domain/credit-visibility.test.ts src/server/modules/credits/application/credit.service.test.ts src/server/shared/cache/read-cache.test.ts src/lib/upload-image.test.ts scripts/create-first-admin.test.ts",
     "db:up": "docker compose up -d",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "admin:first": "tsx scripts/create-first-admin.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

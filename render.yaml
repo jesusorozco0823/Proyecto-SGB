@@ -1,0 +1,22 @@
+# Un solo servicio. La caché y el recordatorio de citas viven en este proceso.
+services:
+  - type: web
+    name: sgb-barberias
+    runtime: node
+    plan: free
+    branch: cursor/panel-credito-y-citas
+    buildCommand: npm ci && npx prisma generate && npm run build
+    startCommand: npx prisma migrate deploy && npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+        sync: false
