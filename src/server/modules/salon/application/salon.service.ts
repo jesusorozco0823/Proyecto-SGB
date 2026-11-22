@@ -4,6 +4,7 @@ import { assertRole } from '@/server/shared/auth/authorize';
 import { DomainError } from '@/server/shared/errors/domain-error';
 import { CacheTtl, cachedRead, invalidate } from '@/server/shared/cache/read-cache';
 import { decimalToNumber } from '@/server/shared/database/prisma-errors';
+import { formatDisplayTime } from '@/server/shared/time/schedule-time';
 import { writeAudit } from '@/server/shared/audit/write-audit';
 import type { BarberRepository } from '@/server/modules/barbers/application/ports';
 
@@ -46,6 +47,34 @@ export class SalonService {
       depositAmount: decimalToNumber(saved.depositAmount),
       commissionPercent: saved.commissionPercent,
       lowStockThreshold: saved.lowStockThreshold,
+    };
+  }
+
+  async hours(actor: Actor) {
+    assertRole(actor, ['admin']);
+    const policy = await this.db.lunchPolicy.findUnique({ where: { id: 'default' } });
+    const lunchMinutes = policy?.durationMinutes ?? 60;
+    const [barbers, plans] = await Promise.all([
+      this.barbers.list(),
+      this.db.dayPlan.findMany({ orderBy: [{ barberId: 'asc' }, { dayOfWeek: 'asc' }] }),
+    ]);
+    return {
+      lunchMinutes,
+      barbers: barbers.map((barber) => ({
+        id: barber.id,
+        name: barber.name,
+        imageUrl: barber.imageUrl,
+        schedule: barber.schedule,
+        plans: plans
+          .filter((plan) => plan.barberId === barber.id)
+          .map((plan) => ({
+            dayOfWeek: plan.dayOfWeek,
+            open: formatDisplayTime(plan.openMin),
+            close: formatDisplayTime(plan.closeMin),
+            lunchStart: formatDisplayTime(plan.lunchStartMin),
+            lunchEnd: formatDisplayTime(plan.lunchStartMin + lunchMinutes),
+          })),
+      })),
     };
   }
 

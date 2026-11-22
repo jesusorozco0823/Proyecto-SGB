@@ -262,7 +262,7 @@ export default function AppointmentsPage() {
                         </div>
                     </div>
                     {visible.length === 0 && <p className="py-12 text-center text-muted-foreground">{emptyCopy}</p>}
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+                    <div className="mx-auto w-full max-w-3xl space-y-3">
                         {visible.map((appt) => {
                             const { client, barber, services } = getAppointmentDetails(appt);
                             return (

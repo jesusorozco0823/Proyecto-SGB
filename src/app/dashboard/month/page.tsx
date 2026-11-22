@@ -78,7 +78,7 @@ export default function MonthPage() {
         {report && report.services.length === 0 && (
           <p className="text-sm text-muted-foreground">Este mes todavía no tienes recortes completados.</p>
         )}
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mx-auto w-full max-w-3xl space-y-3">
           {(report?.services ?? []).map((service) => (
             <article key={service.name} className="rounded-2xl border bg-card p-4">
               <p className="font-medium">{service.name}</p>
@@ -91,7 +91,7 @@ export default function MonthPage() {
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Cada recorte</h2>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="mx-auto w-full max-w-3xl space-y-3">
           {(report?.cuts ?? []).map((cut) => (
             <article key={cut.id} className="flex items-start justify-between gap-3 rounded-2xl border bg-card p-4">
               <div>

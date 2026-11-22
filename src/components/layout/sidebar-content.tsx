@@ -27,6 +27,7 @@ const adminNavItems = [
   { href: '/dashboard/appointments', label: 'Todas las Citas', icon: Calendar },
   { href: '/dashboard/credits', label: 'Crédito', icon: Wallet },
   { href: '/dashboard/barbers', label: 'Barberos', icon: Users },
+  { href: '/dashboard/hours', label: 'Horario', icon: Clock },
   { href: '/dashboard/inventory', label: 'Inventario', icon: Warehouse },
   { href: '/dashboard/orders', label: 'Pedidos', icon: Package },
   { href: '/dashboard/feedback', label: 'Opiniones', icon: MessageSquare },
@@ -65,7 +66,7 @@ const barberNavItems = [
   { href: '/dashboard/profile', label: 'Mi Perfil', icon: User },
 ];
 
-export default function SidebarContent() {
+export default function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     const { role } = useAuth();
     const pathname = usePathname();
     const [unread, setUnread] = useState(0);
@@ -120,6 +121,7 @@ export default function SidebarContent() {
                             <Link
                                 key={href}
                                 href={href}
+                                onClick={onNavigate}
                                 className={cn(
                                     "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
                                     isActive && "bg-secondary text-primary",

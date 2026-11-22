@@ -2,11 +2,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle, ShieldCheck } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Input } from "@/components/ui/input";
+import { PlusCircle, ShieldCheck } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import AddAdminDialog from "@/components/add-admin-dialog";
 import EditAdminDialog from "@/components/edit-admin-dialog";
@@ -20,6 +19,7 @@ export default function AdminsPage() {
     const [isAddAdminDialogOpen, setIsAddAdminDialogOpen] = useState(false);
     const [editingAdmin, setEditingAdmin] = useState<User | null>(null);
     const [deletingAdmin, setDeletingAdmin] = useState<User | null>(null);
+    const [query, setQuery] = useState('');
     const { toast } = useToast();
 
     useEffect(() => {
@@ -91,52 +91,30 @@ export default function AdminsPage() {
                         Añadir Administrador
                     </Button>
                 </div>
-                <Card>
-                    <CardContent className="p-0">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Nombre</TableHead>
-                                    <TableHead>Número de Documento</TableHead>
-                                    <TableHead>Teléfono</TableHead>
-                                    <TableHead><span className="sr-only">Acciones</span></TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {admins.map((admin) => (
-                                    <TableRow key={admin.id}>
-                                        <TableCell className="font-medium">
-                                            <div className="flex items-center gap-3">
-                                                <Avatar className="h-9 w-9">
-                                                    <AvatarImage src={admin.avatarUrl} alt={admin.displayName} />
-                                                    <AvatarFallback>{admin.displayName.charAt(0)}</AvatarFallback>
-                                                </Avatar>
-                                                <span>{admin.displayName}</span>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>{admin.documentNumber}</TableCell>
-                                        <TableCell>{admin.phone}</TableCell>
-                                        <TableCell>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button aria-haspopup="true" size="icon" variant="ghost">
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                        <span className="sr-only">Alternar menú</span>
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => setEditingAdmin(admin)}>Editar</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive" onClick={() => setDeletingAdmin(admin)}>Eliminar</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
+                <Input className="h-10 max-w-md rounded-full" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar por nombre o documento" aria-label="Buscar administrador" />
+                <div className="mx-auto w-full max-w-3xl space-y-3">
+                    {admins.filter((admin) => {
+                        const text = `${admin.displayName} ${admin.documentNumber}`.toLowerCase();
+                        return !query.trim() || text.includes(query.trim().toLowerCase());
+                    }).map((admin) => (
+                        <Card key={admin.id}>
+                            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+                                <Avatar className="h-12 w-12">
+                                    <AvatarImage src={admin.avatarUrl} alt={admin.displayName} />
+                                    <AvatarFallback>{admin.displayName.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <div className="min-w-0">
+                                    <CardTitle className="text-lg">{admin.displayName}</CardTitle>
+                                    <p className="text-sm text-muted-foreground">{admin.documentNumber} · {admin.phone}</p>
+                                </div>
+                            </CardHeader>
+                            <CardFooter className="flex gap-2 bg-secondary/50 p-4">
+                                <Button variant="outline" className="flex-1" onClick={() => setEditingAdmin(admin)}>Editar</Button>
+                                <Button variant="outline" className="flex-1 text-destructive" onClick={() => setDeletingAdmin(admin)}>Eliminar</Button>
+                            </CardFooter>
+                        </Card>
+                    ))}
+                </div>
             </div>
 
             <AddAdminDialog

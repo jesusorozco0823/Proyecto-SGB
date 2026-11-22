@@ -61,7 +61,7 @@ export default function OpinionsPage() {
         {pending.length === 0 && (
           <p className="rounded-2xl border bg-card p-6 text-sm text-muted-foreground">No tienes visitas pendientes de opinión.</p>
         )}
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="mx-auto w-full max-w-3xl space-y-3">
           {pending.map((visit) => (
             <article key={visit.id} className="rounded-2xl border bg-card p-4">
               <p className="font-medium">{visit.services?.map((service) => service.name).join(', ') || 'Servicio'}</p>
@@ -81,7 +81,7 @@ export default function OpinionsPage() {
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Ya opinaste</h2>
         {written.length === 0 && <p className="text-sm text-muted-foreground">Todavía no has dejado opiniones.</p>}
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="mx-auto w-full max-w-3xl space-y-3">
           {written.map((visit) => (
             <article key={visit.id} className="rounded-2xl border bg-card p-4">
               <div className="flex items-start justify-between gap-3">

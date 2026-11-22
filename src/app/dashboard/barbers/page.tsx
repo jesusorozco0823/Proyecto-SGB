@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +19,7 @@ export default function BarbersPage() {
     const [barbers, setBarbers] = useState<Barber[]>([]);
     const [isAddBarberDialogOpen, setIsAddBarberDialogOpen] = useState(false);
     const [editingBarber, setEditingBarber] = useState<Barber | null>(null);
+    const [query, setQuery] = useState('');
     const { toast } = useToast();
 
     const loadBarbers = async () => {
@@ -69,8 +71,9 @@ export default function BarbersPage() {
                     </Button>
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {barbers.map((barber) => (
+                <Input className="h-10 max-w-md rounded-full" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar barbero" aria-label="Buscar barbero" />
+                <div className="mx-auto w-full max-w-3xl space-y-4">
+                    {barbers.filter((barber) => !query.trim() || `${barber.name} ${barber.skills.join(' ')}`.toLowerCase().includes(query.trim().toLowerCase())).map((barber) => (
                         <Card key={barber.id} className="overflow-hidden flex flex-col">
                             <div className="relative h-48 w-full">
                                 <Image

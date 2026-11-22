@@ -133,7 +133,7 @@ export default function CreditsPage() {
               void run(
                 () => apiClient.post('/api/v1/credits', { barberId, kind, note }),
                 'Pedido enviado al barbero',
-              ).then(() => setNote(''));
+              ).then(() => { setNote(''); setKind('owed'); });
             }}
           >
             <p className="text-sm text-muted-foreground">Barbero</p>
@@ -162,7 +162,7 @@ export default function CreditsPage() {
 
         {payload.requests.length === 0 && <p className="py-8 text-center text-muted-foreground">No hay pedidos de crédito.</p>}
 
-        <div className="grid grid-cols-1 gap-3 xl:grid-cols-2">
+        <div className="mx-auto w-full max-w-3xl space-y-3">
           {payload.requests.map((credit) => {
             const draft = drafts[credit.id] ?? { kind: credit.kind, measure: 'cuts' as Measure, limit: '' };
             const left = remaining(credit);

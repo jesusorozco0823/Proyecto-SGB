@@ -18,6 +18,10 @@ export class SalonController {
     return this.salon.settings(actor);
   }
 
+  hours(actor: Actor) {
+    return this.salon.hours(actor);
+  }
+
   updateSettings(actor: Actor, input: unknown) {
     return this.salon.updateSettings(actor, settingsSchema.parse(input));
   }

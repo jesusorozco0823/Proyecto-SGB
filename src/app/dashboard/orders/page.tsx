@@ -2,15 +2,13 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { apiClient } from '@/lib/api-client';
 import { formatCop } from '@/lib/money';
 import type { Order } from '@/lib/types';
-import { MoreHorizontal } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -23,6 +21,8 @@ export default function OrdersPage() {
     const { role } = useAuth();
     const [orders, setOrders] = useState<Order[]>([]);
     const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
+    const [query, setQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState<'all' | Order['status']>('all');
     const { toast } = useToast();
 
     useEffect(() => {
@@ -93,69 +93,53 @@ export default function OrdersPage() {
                     <h1 className="text-3xl font-bold font-headline">Gestión de Pedidos</h1>
                     <p className="text-muted-foreground">Revisa y actualiza el estado de los pedidos de productos.</p>
                 </div>
-                <Card>
-                    <CardContent className="p-0">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Cliente</TableHead>
-                                    <TableHead>Fecha</TableHead>
-                                    <TableHead className="hidden md:table-cell">Total</TableHead>
-                                    <TableHead>Estado</TableHead>
-                                    <TableHead>
-                                        <span className="sr-only">Acciones</span>
-                                    </TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {orders.map((order) => {
-                                    const { user } = getOrderDetails(order);
-                                    return (
-                                        <TableRow key={order.id}>
-                                            <TableCell className="font-medium">{user?.displayName || 'Usuario Desconocido'}</TableCell>
-                                            <TableCell>{format(order.createdAt, "d 'de' MMMM, yyyy", { locale: es })}</TableCell>
-                                            <TableCell className="hidden md:table-cell">{formatCop(order.total)}</TableCell>
-                                            <TableCell>
-                                                <Badge variant={getStatusVariant(order.status)}>
-                                                    {getStatusText(order.status)}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button aria-haspopup="true" size="icon" variant="ghost">
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                            <span className="sr-only">Alternar menú</span>
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                        <DropdownMenuItem onClick={() => setViewingOrder(order)}>Ver Detalles del Pedido</DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => openReceipt(`/api/v1/orders/${order.id}/receipt`).catch((error) => toast({ title: 'No se pudo abrir el comprobante', description: error instanceof Error ? error.message : 'Inténtalo de nuevo.', variant: 'destructive' }))}>Comprobante</DropdownMenuItem>
-                                                        {role === 'admin' && order.paymentStatus !== 'paid' && order.status !== 'cancelled' && <DropdownMenuItem onClick={() => apiClient.post(`/api/v1/orders/${order.id}/payment`).then(() => { setOrders((prev) => prev.map((item) => item.id === order.id ? { ...item, paymentStatus: 'paid' } : item)); toast({ title: 'Pago confirmado' }); }).catch((error) => toast({ title: 'No se pudo confirmar el pago', description: error instanceof Error ? error.message : 'Inténtalo de nuevo.', variant: 'destructive' }))}>Confirmar pago</DropdownMenuItem>}
-                                                        <DropdownMenuSeparator />
-                                                        <div className="px-2 py-1.5 text-sm">Cambiar estado</div>
-                                                        <Select defaultValue={order.status} onValueChange={(value) => handleStatusChange(order.id, value as Order['status'])}>
-                                                            <SelectTrigger className="w-[calc(100%_-_1rem)] mx-auto border-0 focus:ring-0">
-                                                                <SelectValue />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                <SelectItem value="pending">Pendiente</SelectItem>
-                                                                <SelectItem value="shipped">Enviado</SelectItem>
-                                                                <SelectItem value="delivered">Entregado</SelectItem>
-                                                                <SelectItem value="cancelled">Cancelado</SelectItem>
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </TableCell>
-                                        </TableRow>
-                                    );
-                                })}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
+                <div className="flex flex-col gap-3 rounded-2xl border bg-card p-3">
+                    <Input className="h-10 rounded-full" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar cliente" aria-label="Buscar cliente" />
+                    <div className="flex flex-wrap gap-2">
+                        {([['all', 'Todos'], ['pending', 'Pendientes'], ['shipped', 'Enviados'], ['delivered', 'Entregados'], ['cancelled', 'Cancelados']] as const).map(([value, label]) => (
+                            <Button key={value} type="button" variant={statusFilter === value ? 'default' : 'outline'} className="h-10 rounded-full px-4" onClick={() => setStatusFilter(value)}>{label}</Button>
+                        ))}
+                    </div>
+                </div>
+                <div className="mx-auto w-full max-w-3xl space-y-3">
+                    {orders.filter((order) => {
+                        const name = order.user?.displayName ?? '';
+                        const matchesQuery = !query.trim() || name.toLowerCase().includes(query.trim().toLowerCase());
+                        return matchesQuery && (statusFilter === 'all' || order.status === statusFilter);
+                    }).map((order) => {
+                        const { user } = getOrderDetails(order);
+                        return (
+                            <Card key={order.id}>
+                                <CardHeader>
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div>
+                                            <CardTitle className="text-lg">{user?.displayName || 'Usuario desconocido'}</CardTitle>
+                                            <p className="text-sm text-muted-foreground">{format(order.createdAt, "d 'de' MMMM, yyyy", { locale: es })} · {formatCop(order.total)}</p>
+                                        </div>
+                                        <Badge variant={getStatusVariant(order.status)}>{getStatusText(order.status)}</Badge>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="space-y-3">
+                                    <Select value={order.status} onValueChange={(value) => handleStatusChange(order.id, value as Order['status'])}>
+                                        <SelectTrigger className="h-11" aria-label={`Estado del pedido de ${user?.displayName || 'cliente'}`}><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="pending">Pendiente</SelectItem>
+                                            <SelectItem value="shipped">Enviado</SelectItem>
+                                            <SelectItem value="delivered">Entregado</SelectItem>
+                                            <SelectItem value="cancelled">Cancelado</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </CardContent>
+                                <CardFooter className="flex flex-wrap gap-2 bg-secondary/50 p-4">
+                                    <Button variant="outline" onClick={() => setViewingOrder(order)}>Ver detalles</Button>
+                                    <Button variant="outline" onClick={() => openReceipt(`/api/v1/orders/${order.id}/receipt`).catch((error) => toast({ title: 'No se pudo abrir el comprobante', description: error instanceof Error ? error.message : 'Inténtalo de nuevo.', variant: 'destructive' }))}>Comprobante</Button>
+                                    {role === 'admin' && order.paymentStatus !== 'paid' && order.status !== 'cancelled' && <Button onClick={() => apiClient.post(`/api/v1/orders/${order.id}/payment`).then(() => { setOrders((prev) => prev.map((item) => item.id === order.id ? { ...item, paymentStatus: 'paid' } : item)); toast({ title: 'Pago confirmado' }); }).catch((error) => toast({ title: 'No se pudo confirmar el pago', description: error instanceof Error ? error.message : 'Inténtalo de nuevo.', variant: 'destructive' }))}>Confirmar pago</Button>}
+                                </CardFooter>
+                            </Card>
+                        );
+                    })}
+                    {orders.length === 0 && <p className="rounded-2xl border bg-card p-6 text-center text-sm text-muted-foreground">No hay pedidos.</p>}
+                </div>
             </div>
             {viewingOrder && (
                 <OrderDetailsDialog

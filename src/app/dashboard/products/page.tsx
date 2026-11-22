@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import FloatingCartButton from "@/components/floating-cart-button";
@@ -19,6 +20,7 @@ export default function ProductsPage() {
     const [cart, setCart] = useState<CartItem[]>([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [checkingOut, setCheckingOut] = useState(false);
+    const [query, setQuery] = useState('');
     const { toast } = useToast();
 
     useEffect(() => {
@@ -85,8 +87,9 @@ export default function ProductsPage() {
                 <p className="text-muted-foreground">Encuentra los mejores productos para tu cuidado personal.</p>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {products.map((item) => (
+            <Input className="h-10 max-w-md rounded-full" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar producto" aria-label="Buscar producto" />
+            <div className="mx-auto w-full max-w-3xl space-y-4">
+                {products.filter((item) => !query.trim() || item.name.toLowerCase().includes(query.trim().toLowerCase())).map((item) => (
                     <Card key={item.id} className="overflow-hidden flex flex-col">
                         <div className="relative h-56 w-full">
                             <Image

@@ -211,10 +211,13 @@ export default function SchedulePage() {
         isSpecial,
       });
       setName('');
+      setDuration('25');
+      setPrice('20000');
       setDescription('');
       setIsSpecial(false);
       setSelected((current) => [...current, created.id]);
       loadOfferings();
+      toast({ title: 'Servicio agregado', description: `${created.name} ya está en tu lista.` });
     } catch (error) {
       toast({ title: 'No se pudo crear el servicio', description: error instanceof Error ? error.message : 'Revisa los datos.', variant: 'destructive' });
     }
@@ -266,7 +269,7 @@ export default function SchedulePage() {
         footer={(
           <>
             <Button variant="outline" onClick={() => setDayOffOpen(false)}>Cancelar</Button>
-            <Button onClick={() => apiClient.post('/api/v1/barbers/me/day-off', { date: dayOff, reason: dayOffReason }).then(() => { toast({ title: 'Día libre guardado' }); setDayOffOpen(false); }).catch((error) => toast({ title: 'No se pudo guardar el día libre', description: error instanceof Error ? error.message : 'Revisa la fecha.', variant: 'destructive' }))}>Guardar día libre</Button>
+            <Button onClick={() => apiClient.post('/api/v1/barbers/me/day-off', { date: dayOff, reason: dayOffReason }).then(() => { setDayOff(''); setDayOffReason(''); toast({ title: 'Día libre guardado' }); setDayOffOpen(false); }).catch((error) => toast({ title: 'No se pudo guardar el día libre', description: error instanceof Error ? error.message : 'Revisa la fecha.', variant: 'destructive' }))}>Guardar día libre</Button>
           </>
         )}
       >

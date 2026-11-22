@@ -6,6 +6,7 @@ const prefixes: Record<UserRole, string[]> = {
     '/dashboard/appointments',
     '/dashboard/credits',
     '/dashboard/barbers',
+    '/dashboard/hours',
     '/dashboard/inventory',
     '/dashboard/orders',
     '/dashboard/feedback',

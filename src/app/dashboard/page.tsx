@@ -91,7 +91,7 @@ function AdminDashboard() {
                 <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Button asChild><Link href="/dashboard/appointments">Ver Todas las Citas</Link></Button>
                     <Button asChild variant="secondary"><Link href="/dashboard/inventory">Gestionar Inventario</Link></Button>
-                    <Button asChild variant="secondary"><Link href="/dashboard/barbers">Actualizar Horarios</Link></Button>
+                    <Button asChild variant="secondary"><Link href="/dashboard/hours">Actualizar Horarios</Link></Button>
                 </CardContent>
             </Card>
             <Card>
@@ -99,12 +99,24 @@ function AdminDashboard() {
                     <CardTitle>Ajustes del salón</CardTitle>
                     <CardDescription>Almuerzo, abono para apartar la cita, comisión del barbero y umbral de stock.</CardDescription>
                 </CardHeader>
-                <CardContent className="grid gap-3 sm:grid-cols-2">
-                    <Input type="number" value={settings.durationMinutes} onChange={(event) => setSettings({ ...settings, durationMinutes: event.target.value })} placeholder="Minutos de almuerzo" />
-                    <Input type="number" aria-label="Abono para apartar la cita" value={settings.depositAmount} onChange={(event) => setSettings({ ...settings, depositAmount: event.target.value })} placeholder="Abono para apartar" />
-                    <Input type="number" value={settings.commissionPercent} onChange={(event) => setSettings({ ...settings, commissionPercent: event.target.value })} placeholder="Comisión %" />
-                    <Input type="number" value={settings.lowStockThreshold} onChange={(event) => setSettings({ ...settings, lowStockThreshold: event.target.value })} placeholder="Stock bajo" />
-                    <Button onClick={saveSettings}>Guardar ajustes</Button>
+                <CardContent className="grid gap-4 sm:grid-cols-2">
+                    <label className="space-y-1.5 text-sm">
+                        <span className="text-muted-foreground">Minutos de almuerzo</span>
+                        <Input type="number" min={15} max={120} aria-label="Minutos de almuerzo" value={settings.durationMinutes} onChange={(event) => setSettings({ ...settings, durationMinutes: event.target.value })} />
+                    </label>
+                    <label className="space-y-1.5 text-sm">
+                        <span className="text-muted-foreground">Abono para apartar</span>
+                        <Input type="number" min={0} aria-label="Abono para apartar la cita" value={settings.depositAmount} onChange={(event) => setSettings({ ...settings, depositAmount: event.target.value })} />
+                    </label>
+                    <label className="space-y-1.5 text-sm">
+                        <span className="text-muted-foreground">Comisión del barbero (%)</span>
+                        <Input type="number" min={0} max={100} aria-label="Comisión del barbero" value={settings.commissionPercent} onChange={(event) => setSettings({ ...settings, commissionPercent: event.target.value })} />
+                    </label>
+                    <label className="space-y-1.5 text-sm">
+                        <span className="text-muted-foreground">Stock bajo</span>
+                        <Input type="number" min={0} aria-label="Umbral de stock bajo" value={settings.lowStockThreshold} onChange={(event) => setSettings({ ...settings, lowStockThreshold: event.target.value })} />
+                    </label>
+                    <Button className="sm:col-span-2" onClick={saveSettings}>Guardar ajustes</Button>
                 </CardContent>
             </Card>
             <Card>
@@ -115,7 +127,7 @@ function AdminDashboard() {
                     <div className="flex flex-col gap-3 sm:flex-row">
                         <Input type="date" value={holiday} onChange={(event) => setHoliday(event.target.value)} />
                         <Input value={holidayReason} onChange={(event) => setHolidayReason(event.target.value)} placeholder="Motivo del festivo" />
-                        <Button variant="secondary" onClick={() => apiClient.post('/api/v1/holidays', { date: holiday, reason: holidayReason }).then(() => toast({ title: 'Festivo guardado' })).catch((error) => toast({ title: 'No se pudo guardar el festivo', description: error instanceof Error ? error.message : 'Revisa la fecha.', variant: 'destructive' }))}>Guardar festivo</Button>
+                        <Button variant="secondary" onClick={() => apiClient.post('/api/v1/holidays', { date: holiday, reason: holidayReason }).then(() => { setHoliday(''); setHolidayReason(''); toast({ title: 'Festivo guardado' }); }).catch((error) => toast({ title: 'No se pudo guardar el festivo', description: error instanceof Error ? error.message : 'Revisa la fecha.', variant: 'destructive' }))}>Guardar festivo</Button>
                     </div>
                     <Button variant="outline" onClick={() => {
                         const today = new Date();

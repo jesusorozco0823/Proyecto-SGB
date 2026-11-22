@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Menu, User, LogOut } from "lucide-react";
 import Link from "next/link";
@@ -18,6 +19,7 @@ import SidebarContent from "./sidebar-content";
 
 export default function Header() {
   const { user, logout, role } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const getTitle = () => {
       switch (role) {
@@ -36,7 +38,7 @@ export default function Header() {
     <header className="sticky top-0 z-30 flex min-h-14 items-center justify-between gap-3 border-b bg-card px-3 py-2 md:px-6">
         <div className="flex min-w-0 items-center gap-3">
             <div className="md:hidden">
-                <Sheet>
+                <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
                     <SheetTrigger asChild>
                         <Button variant="outline" size="icon" className="h-11 w-11 shrink-0">
                             <Menu className="h-6 w-6" />
@@ -44,7 +46,7 @@ export default function Header() {
                         </Button>
                     </SheetTrigger>
                     <SheetContent side="left" className="w-[min(280px,85vw)] overflow-y-auto p-0 pt-8">
-                        <SidebarContent />
+                        <SidebarContent onNavigate={() => setMenuOpen(false)} />
                     </SheetContent>
                 </Sheet>
             </div>

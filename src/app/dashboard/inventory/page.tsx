@@ -2,12 +2,11 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, PlusCircle } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Input } from "@/components/ui/input";
+import { PlusCircle } from "lucide-react";
 import Image from "next/image";
 import type { InventoryItem } from '@/lib/types';
 import { formatCop } from '@/lib/money';
@@ -22,6 +21,8 @@ export default function InventoryPage() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<InventoryItem | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<InventoryItem | null>(null);
+  const [query, setQuery] = useState('');
+  const [stockFilter, setStockFilter] = useState<'all' | 'low' | 'out'>('all');
   const { toast } = useToast();
 
   const loadInventory = async () => {
@@ -91,65 +92,49 @@ export default function InventoryPage() {
               Añadir Producto
           </Button>
         </div>
-        <Card>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="hidden w-[100px] sm:table-cell">
-                    <span className="sr-only">Imagen</span>
-                  </TableHead>
-                  <TableHead>Nombre</TableHead>
-                  <TableHead>SKU</TableHead>
-                  <TableHead className="hidden md:table-cell">Precio</TableHead>
-                  <TableHead>Stock</TableHead>
-                  <TableHead>
-                    <span className="sr-only">Acciones</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {inventory.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="hidden sm:table-cell">
-                      <Image
-                        alt={item.name}
-                        className="aspect-square rounded-md object-cover"
-                        height="64"
-                        src={item.imageUrl}
-                        width="64"
-                        data-ai-hint="product photo"
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium">{item.name}</TableCell>
-                    <TableCell>{item.sku}</TableCell>
-                    <TableCell className="hidden md:table-cell">{formatCop(item.price)}</TableCell>
-                    <TableCell>
-                      <Badge variant={(item.stock ?? 0) < 20 ? "destructive" : "outline"}>
-                          {item.stock ?? 0}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button aria-haspopup="true" size="icon" variant="ghost">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Alternar menú</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => setEditingProduct(item)}>Editar</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive" onClick={() => setDeletingProduct(item)}>Eliminar</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col gap-3 rounded-2xl border bg-card p-3 sm:flex-row sm:items-center">
+          <Input className="h-10 rounded-full" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar producto o SKU" aria-label="Buscar producto" />
+          <div className="flex flex-wrap gap-2">
+            {([['all', 'Todos'], ['low', 'Stock bajo'], ['out', 'Agotados']] as const).map(([value, label]) => (
+              <Button key={value} type="button" variant={stockFilter === value ? 'default' : 'outline'} className="h-10 rounded-full px-4" onClick={() => setStockFilter(value)}>{label}</Button>
+            ))}
+          </div>
+        </div>
+        <div className="mx-auto w-full max-w-3xl space-y-3">
+          {inventory.filter((item) => {
+            const text = `${item.name} ${item.sku}`.toLowerCase();
+            const matchesQuery = !query.trim() || text.includes(query.trim().toLowerCase());
+            const stock = item.stock ?? 0;
+            const matchesStock = stockFilter === 'all' || (stockFilter === 'out' ? stock === 0 : stock > 0 && stock < 20);
+            return matchesQuery && matchesStock;
+          }).map((item) => (
+            <Card key={item.id}>
+              <CardHeader className="flex flex-row items-center gap-3 space-y-0">
+                <Image alt={item.name} className="h-14 w-14 rounded-lg object-cover" height="56" src={item.imageUrl} width="56" />
+                <div className="min-w-0 flex-1">
+                  <CardTitle className="text-lg">{item.name}</CardTitle>
+                  <p className="text-sm text-muted-foreground">{item.sku} · {formatCop(item.price)}</p>
+                </div>
+                <Badge variant={(item.stock ?? 0) < 20 ? "destructive" : "outline"}>{item.stock ?? 0} en stock</Badge>
+              </CardHeader>
+              <CardFooter className="bg-secondary/50 p-4">
+                <div className="flex w-full gap-2">
+                  <Button variant="outline" className="flex-1" onClick={() => setEditingProduct(item)}>Editar</Button>
+                  <Button variant="outline" className="flex-1 text-destructive" onClick={() => setDeletingProduct(item)}>Eliminar</Button>
+                </div>
+              </CardFooter>
+            </Card>
+          ))}
+          {inventory.length > 0 && inventory.every((item) => {
+            const text = `${item.name} ${item.sku}`.toLowerCase();
+            const matchesQuery = !query.trim() || text.includes(query.trim().toLowerCase());
+            const stock = item.stock ?? 0;
+            const matchesStock = stockFilter === 'all' || (stockFilter === 'out' ? stock === 0 : stock > 0 && stock < 20);
+            return !(matchesQuery && matchesStock);
+          }) && (
+            <p className="rounded-2xl border bg-card p-6 text-center text-sm text-muted-foreground">Ningún producto coincide con ese filtro.</p>
+          )}
+        </div>
       </div>
 
       <AddProductDialog
